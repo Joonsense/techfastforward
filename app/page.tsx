@@ -1,20 +1,19 @@
-import { getPosts } from "@/lib/ghost";
+import { getArticles, type Article } from "@/lib/articles";
 import ArticleCard, { type ArticleCardData } from "@/components/ArticleCard";
-import { type Category } from "@/components/CategoryBadge";
 import NewsletterForm from "@/components/NewsletterForm";
 import Link from "next/link";
 import { ArrowRight, TrendingUp, DollarSign, Cpu, Package, Handshake, Scale, Layers, Zap } from "lucide-react";
 
-function ghostToCard(post: Awaited<ReturnType<typeof getPosts>>[number]): ArticleCardData {
+function articleToCard(a: Article): ArticleCardData {
   return {
-    slug: post.slug,
-    title: post.title,
-    excerpt: post.excerpt,
-    category: (post.primary_tag?.slug ?? "other") as Category,
-    coverImage: post.feature_image ?? undefined,
-    author: post.primary_author?.name ?? "TFF Editorial",
-    date: post.published_at,
-    readingTime: post.reading_time,
+    slug: a.slug,
+    title: a.title,
+    excerpt: a.excerpt,
+    category: a.category,
+    coverImage: a.cover_image_url ?? undefined,
+    author: a.author ?? "TFF Editorial",
+    date: a.published_at ?? a.created_at,
+    readingTime: a.reading_time_min ?? undefined,
   };
 }
 
@@ -43,13 +42,13 @@ function SectionHeader({ label, icon: Icon, color, href }: { label: string; icon
 }
 
 export default async function HomePage() {
-  const allPosts = await getPosts(30);
-  const cards = allPosts.map(ghostToCard);
+  const allArticles = await getArticles(30);
+  const cards = allArticles.map(articleToCard);
 
   const featured = cards[0];
   const latestThree = cards.slice(1, 4);
 
-  const isDemoMode = !process.env.GHOST_CONTENT_KEY || process.env.GHOST_CONTENT_KEY === "placeholder";
+  const isDemoMode = !process.env.NEXT_PUBLIC_SUPABASE_URL;
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -62,8 +61,8 @@ export default async function HomePage() {
         >
           <span className="w-1.5 h-1.5 rounded-full pulse-dot flex-shrink-0" style={{ background: "var(--accent)" }} />
           <p className="text-xs font-medium" style={{ color: "var(--accent)" }}>
-            DEMO MODE — Connect Ghost CMS via{" "}
-            <code className="px-1 py-0.5 rounded text-[11px]" style={{ background: "var(--accent-bdr)" }}>.env.local</code>
+            DEMO MODE — Add{" "}
+            <code className="px-1 py-0.5 rounded text-[11px]" style={{ background: "var(--accent-bdr)" }}>NEXT_PUBLIC_SUPABASE_URL</code>
             {" "}to display live articles
           </p>
         </div>

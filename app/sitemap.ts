@@ -1,4 +1,4 @@
-import { getPosts } from "@/lib/ghost";
+import { getArticles } from "@/lib/articles";
 import type { MetadataRoute } from "next";
 
 const siteUrl = "https://techfastforward.com";
@@ -15,11 +15,11 @@ const staticRoutes = [
 ];
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const posts = await getPosts(100);
+  const articles = await getArticles(100);
 
-  const articleEntries: MetadataRoute.Sitemap = posts.map((post) => ({
-    url: `${siteUrl}/articles/${post.slug}`,
-    lastModified: new Date(post.published_at),
+  const articleEntries: MetadataRoute.Sitemap = articles.map((a) => ({
+    url: `${siteUrl}/articles/${a.slug}`,
+    lastModified: new Date(a.published_at ?? a.created_at),
     changeFrequency: "monthly",
     priority: 0.7,
   }));

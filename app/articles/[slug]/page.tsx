@@ -1,4 +1,4 @@
-import { getPost, getPosts } from "@/lib/ghost";
+import { getArticle, getArticles } from "@/lib/articles";
 import ArticleCard, { type ArticleCardData } from "@/components/ArticleCard";
 import CategoryBadge, { type Category } from "@/components/CategoryBadge";
 import ShareButtons from "@/components/ShareButtons";
@@ -14,28 +14,26 @@ interface Props {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
-  const post = await getPost(slug);
-  if (!post) return { title: "Article Not Found" };
+  const article = await getArticle(slug);
+  if (!article) return { title: "Article Not Found" };
   const canonicalUrl = `https://techfastforward.com/articles/${slug}`;
-  const ogImages = post.feature_image ? [{ url: post.feature_image }] : [];
+  const ogImages = article.cover_image_url ? [{ url: article.cover_image_url }] : [];
   return {
-    title: `${post.title} — TechFastForward`,
-    description: post.excerpt,
-    alternates: {
-      canonical: canonicalUrl,
-    },
+    title: `${article.title} — TechFastForward`,
+    description: article.excerpt,
+    alternates: { canonical: canonicalUrl },
     openGraph: {
-      title: post.title,
-      description: post.excerpt,
+      title: article.title,
+      description: article.excerpt,
       url: canonicalUrl,
       type: "article",
       images: ogImages,
     },
     twitter: {
       card: "summary_large_image",
-      title: post.title,
-      description: post.excerpt,
-      images: post.feature_image ? [post.feature_image] : [],
+      title: article.title,
+      description: article.excerpt,
+      images: article.cover_image_url ? [article.cover_image_url] : [],
     },
   };
 }
@@ -50,23 +48,23 @@ function formatDate(dateStr: string) {
 
 export default async function ArticlePage({ params }: Props) {
   const { slug } = await params;
-  const [post, allPosts] = await Promise.all([getPost(slug), getPosts(6)]);
-  if (!post) notFound();
+  const [article, allArticles] = await Promise.all([getArticle(slug), getArticles(6)]);
+  if (!article) notFound();
 
-  const category = (post.primary_tag?.slug ?? "other") as Category;
+  const category = article.category as Category;
 
-  const related: ArticleCardData[] = allPosts
-    .filter((p) => p.slug !== slug)
+  const related: ArticleCardData[] = allArticles
+    .filter((a) => a.slug !== slug)
     .slice(0, 3)
-    .map((p) => ({
-      slug: p.slug,
-      title: p.title,
-      excerpt: p.excerpt,
-      category: (p.primary_tag?.slug ?? "other") as Category,
-      coverImage: p.feature_image ?? undefined,
-      author: p.primary_author?.name ?? "TFF Editorial",
-      date: p.published_at,
-      readingTime: p.reading_time,
+    .map((a) => ({
+      slug: a.slug,
+      title: a.title,
+      excerpt: a.excerpt,
+      category: a.category as Category,
+      coverImage: a.cover_image_url ?? undefined,
+      author: a.author ?? "TFF Editorial",
+      date: a.published_at ?? a.created_at,
+      readingTime: a.reading_time_min ?? undefined,
     }));
 
   const articleUrl = `https://techfastforward.com/articles/${slug}`;
@@ -91,9 +89,9 @@ export default async function ArticlePage({ params }: Props) {
             className="relative w-full overflow-hidden rounded-2xl mb-8"
             style={{ border: "1px solid var(--border)", maxHeight: 480 }}
           >
-            {post.feature_image ? (
+            {article.cover_image_url ? (
               // eslint-disable-next-line @next/next/no-img-element
-              <img src={post.feature_image} alt={post.title} className="w-full object-cover" style={{ maxHeight: 480 }} />
+              <img src={article.cover_image_url} alt={article.title} className="w-full object-cover" style={{ maxHeight: 480 }} />
             ) : (
               <div className="w-full h-64 flex items-center justify-center" style={{ background: "var(--bg-secondary)" }}>
                 <span className="font-black text-7xl select-none" style={{ color: "var(--border)" }}>TFF</span>
@@ -108,34 +106,36 @@ export default async function ArticlePage({ params }: Props) {
             </div>
 
             <h1 className="font-bold text-2xl sm:text-3xl lg:text-4xl leading-tight mb-4" style={{ color: "var(--text)" }}>
-              {post.title}
+              {article.title}
             </h1>
 
             <p className="text-base leading-relaxed mb-5 border-l-2 pl-4" style={{ color: "var(--text-muted)", borderColor: "var(--accent)" }}>
-              {post.excerpt}
+              {article.excerpt}
             </p>
 
             {/* Meta row */}
             <div className="flex flex-wrap items-center gap-4 text-xs pb-5 mb-5" style={{ borderBottom: "1px solid var(--border)", color: "var(--text-faint)" }}>
               <div className="flex items-center gap-1.5">
                 <User size={11} />
-                <span className="font-medium" style={{ color: "var(--text-muted)" }}>{post.primary_author?.name ?? "TFF Editorial"}</span>
+                <span className="font-medium" style={{ color: "var(--text-muted)" }}>{article.author ?? "TFF Editorial"}</span>
               </div>
               <div className="flex items-center gap-1.5">
                 <Calendar size={11} />
-                <span>{formatDate(post.published_at)}</span>
+                <span>{formatDate(article.published_at ?? article.created_at)}</span>
               </div>
-              <div className="flex items-center gap-1.5">
-                <Clock size={11} />
-                <span>{post.reading_time} min read</span>
-              </div>
-              {post.tags.length > 0 && (
+              {article.reading_time_min && (
+                <div className="flex items-center gap-1.5">
+                  <Clock size={11} />
+                  <span>{article.reading_time_min} min read</span>
+                </div>
+              )}
+              {article.tags && article.tags.length > 0 && (
                 <div className="flex items-center gap-1.5 flex-wrap">
-                  {post.tags.slice(0, 3).map((tag) => (
-                    <Link key={tag.id} href={`/category/${tag.slug}`}
+                  {article.tags.slice(0, 3).map((tag) => (
+                    <Link key={tag} href={`/category/${tag}`}
                       className="px-2 py-0.5 rounded-full text-[10px] transition-colors"
                       style={{ border: "1px solid var(--border)", color: "var(--text-faint)" }}>
-                      {tag.name}
+                      {tag}
                     </Link>
                   ))}
                 </div>
@@ -143,8 +143,23 @@ export default async function ArticlePage({ params }: Props) {
             </div>
 
             {/* Share — top */}
-            <ShareButtons title={post.title} url={articleUrl} />
+            <ShareButtons title={article.title} url={articleUrl} />
           </header>
+
+          {/* Key Takeaways */}
+          {article.key_takeaways && article.key_takeaways.length > 0 && (
+            <div className="mb-8 p-5 rounded-xl" style={{ background: "var(--accent-bg)", border: "1px solid var(--accent-bdr)" }}>
+              <p className="text-[10px] font-bold uppercase tracking-wider mb-3" style={{ color: "var(--accent)" }}>Key Takeaways</p>
+              <ul className="space-y-1.5">
+                {article.key_takeaways.map((point, i) => (
+                  <li key={i} className="flex items-start gap-2 text-sm" style={{ color: "var(--text-muted)" }}>
+                    <span className="mt-1.5 w-1 h-1 rounded-full flex-shrink-0" style={{ background: "var(--accent)" }} />
+                    {point}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
 
           {/* Body */}
           <div
@@ -166,12 +181,12 @@ export default async function ArticlePage({ params }: Props) {
               dark:prose-hr:border-white/10
               dark:prose-li:text-white/70"
             style={{ color: "var(--text-2)" }}
-            dangerouslySetInnerHTML={{ __html: post.html }}
+            dangerouslySetInnerHTML={{ __html: article.body_html ?? `<p>${article.excerpt}</p>` }}
           />
 
           {/* Share — bottom */}
           <div className="mt-10 pt-6" style={{ borderTop: "1px solid var(--border)" }}>
-            <ShareButtons title={post.title} url={articleUrl} />
+            <ShareButtons title={article.title} url={articleUrl} />
           </div>
         </article>
 

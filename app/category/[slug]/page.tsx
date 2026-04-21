@@ -1,4 +1,4 @@
-import { getPostsByTag } from "@/lib/ghost";
+import { getArticles, type Article } from "@/lib/articles";
 import ArticleCard, { type ArticleCardData } from "@/components/ArticleCard";
 import { type Category } from "@/components/CategoryBadge";
 import Link from "next/link";
@@ -15,16 +15,16 @@ const CATEGORY_META: Record<string, { label: string; description: string; icon: 
   other:          { label: "Analysis",         description: "In-depth analysis, opinion, and AI industry commentary.",                icon: LayoutGrid, color: "text-gray-600 dark:text-gray-400" },
 };
 
-function ghostToCard(post: Awaited<ReturnType<typeof getPostsByTag>>[number]): ArticleCardData {
+function articleToCard(a: Article): ArticleCardData {
   return {
-    slug: post.slug,
-    title: post.title,
-    excerpt: post.excerpt,
-    category: (post.primary_tag?.slug ?? "other") as Category,
-    coverImage: post.feature_image ?? undefined,
-    author: post.primary_author?.name ?? "TFF Editorial",
-    date: post.published_at,
-    readingTime: post.reading_time,
+    slug: a.slug,
+    title: a.title,
+    excerpt: a.excerpt,
+    category: a.category as Category,
+    coverImage: a.cover_image_url ?? undefined,
+    author: a.author ?? "TFF Editorial",
+    date: a.published_at ?? a.created_at,
+    readingTime: a.reading_time_min ?? undefined,
   };
 }
 
@@ -37,8 +37,8 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
   const meta = CATEGORY_META[slug] ?? CATEGORY_META.other;
   const Icon = meta.icon;
 
-  const posts = await getPostsByTag(slug, 50);
-  const cards = posts.map(ghostToCard);
+  const articles = await getArticles(50, slug);
+  const cards = articles.map(articleToCard);
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
