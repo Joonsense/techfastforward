@@ -24,7 +24,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     : `${siteUrl}/og?title=${encodeURIComponent(article.title)}&category=${article.category}&excerpt=${encodeURIComponent(article.excerpt)}`;
 
   return {
-    title: `${article.title} — TechFastForward`,
+    title: `${article.title} | TechFastForward`,
     description: article.excerpt,
     alternates: { canonical: canonicalUrl },
     openGraph: {

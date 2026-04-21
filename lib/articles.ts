@@ -1,13 +1,14 @@
 import { createClient } from '@supabase/supabase-js'
 
-const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || ''
-const SUPABASE_ANON = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
-
 function getClient() {
-  return createClient(SUPABASE_URL, SUPABASE_ANON)
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL || ''
+  const anon = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
+  return createClient(url, anon)
 }
 
-const isDemoMode = !SUPABASE_URL || !SUPABASE_ANON
+function isDemo() {
+  return !process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+}
 
 export interface Article {
   id: string
@@ -51,7 +52,7 @@ function toArticle(row: Record<string, unknown>): Article {
 }
 
 export async function getArticles(limit = 20, category?: string): Promise<Article[]> {
-  if (isDemoMode) return getMockArticles(limit, category)
+  if (isDemo()) return getMockArticles(limit, category)
 
   try {
     const sb = getClient()
@@ -75,7 +76,7 @@ export async function getArticles(limit = 20, category?: string): Promise<Articl
 }
 
 export async function getArticle(slug: string): Promise<Article | null> {
-  if (isDemoMode) {
+  if (isDemo()) {
     return getMockArticles(20).find(a => a.slug === slug) ?? getMockArticles(1)[0]
   }
 

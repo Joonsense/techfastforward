@@ -51,7 +51,7 @@ export default async function HomePage() {
 
   const featured = cards[0];
   const latestSix = cards.slice(1, 7);
-  const isDemoMode = !process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const isDemoMode = !process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
   // Sidebar: most recent 6 compact
   const sidebarLatest = cards.slice(0, 6);
