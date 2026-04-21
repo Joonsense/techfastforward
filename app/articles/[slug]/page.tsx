@@ -114,14 +114,16 @@ export default async function ArticlePage({ params }: Props) {
             className="relative w-full overflow-hidden rounded-2xl mb-8"
             style={{ border: "1px solid var(--border)", maxHeight: 480 }}
           >
-            {article.cover_image_url ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={article.cover_image_url} alt={article.title} className="w-full object-cover" style={{ maxHeight: 480 }} />
-            ) : (
-              <div className="w-full h-64 flex items-center justify-center" style={{ background: "var(--bg-secondary)" }}>
-                <span className="font-black text-7xl select-none" style={{ color: "var(--border)" }}>TFF</span>
-              </div>
-            )}
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={
+                article.cover_image_url ??
+                `/og?${new URLSearchParams({ title: article.title, category: article.category, excerpt: article.excerpt }).toString()}`
+              }
+              alt={article.title}
+              className="w-full object-cover"
+              style={{ maxHeight: 480 }}
+            />
           </div>
 
           {/* Header */}

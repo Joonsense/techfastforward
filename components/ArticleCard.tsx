@@ -24,24 +24,24 @@ function formatDate(dateStr: string) {
   } catch { return dateStr; }
 }
 
-const CATEGORY_COVER: Record<string, string> = {
-  funding:        "from-emerald-100 to-emerald-50 dark:from-emerald-900/60 dark:to-[#07080e]",
-  model_release:  "from-blue-100 to-blue-50 dark:from-blue-900/60 dark:to-[#07080e]",
-  product_launch: "from-violet-100 to-violet-50 dark:from-violet-900/60 dark:to-[#07080e]",
-  acquisition:    "from-red-100 to-red-50 dark:from-red-900/60 dark:to-[#07080e]",
-  technology:     "from-orange-100 to-orange-50 dark:from-orange-900/60 dark:to-[#07080e]",
-  regulation:     "from-yellow-100 to-yellow-50 dark:from-yellow-900/60 dark:to-[#07080e]",
-  other:          "from-gray-100 to-gray-50 dark:from-gray-800/60 dark:to-[#07080e]",
-};
-
-function CoverPlaceholder({ category, className }: { category: string; className?: string }) {
-  const grad = CATEGORY_COVER[category] ?? CATEGORY_COVER.other;
-  return (
-    <div className={`w-full h-full bg-gradient-to-br ${grad} ${className ?? ""}`} />
-  );
+/**
+ * Build the cover URL: real image if present, otherwise the /og route
+ * renders a dynamic card (title + category badge + excerpt). Guarantees
+ * every article tile has content beyond a flat gradient.
+ */
+function getCoverUrl(article: ArticleCardData): string {
+  if (article.coverImage) return article.coverImage;
+  const params = new URLSearchParams({
+    title: article.title,
+    category: String(article.category),
+    excerpt: article.excerpt,
+  });
+  return `/og?${params.toString()}`;
 }
 
 export default function ArticleCard({ article, variant = "default" }: ArticleCardProps) {
+  const coverSrc = getCoverUrl(article);
+
   if (variant === "featured") {
     return (
       <Link href={`/articles/${article.slug}`} className="group block w-full">
@@ -51,12 +51,8 @@ export default function ArticleCard({ article, variant = "default" }: ArticleCar
         >
           {/* Cover */}
           <div className="relative w-full h-72 sm:h-96 overflow-hidden">
-            {article.coverImage ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={article.coverImage} alt={article.title} className="w-full h-full object-cover opacity-90 dark:opacity-40" />
-            ) : (
-              <CoverPlaceholder category={article.category} className="h-full" />
-            )}
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={coverSrc} alt={article.title} className="w-full h-full object-cover opacity-90 dark:opacity-40" />
             {/* Bottom fade */}
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent dark:from-[#07080e]/90" />
             {/* Content */}
@@ -96,12 +92,8 @@ export default function ArticleCard({ article, variant = "default" }: ArticleCar
           className="flex-shrink-0 w-14 h-10 rounded-lg overflow-hidden"
           style={{ border: "1px solid var(--border)" }}
         >
-          {article.coverImage ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={article.coverImage} alt={article.title} className="w-full h-full object-cover" />
-          ) : (
-            <CoverPlaceholder category={article.category} className="h-full" />
-          )}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={coverSrc} alt={article.title} className="w-full h-full object-cover" />
         </div>
         <div className="min-w-0 flex-1">
           <div className="mb-1">
@@ -132,16 +124,12 @@ export default function ArticleCard({ article, variant = "default" }: ArticleCar
       >
         {/* Cover */}
         <div className="relative w-full aspect-video overflow-hidden">
-          {article.coverImage ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={article.coverImage}
-              alt={article.title}
-              className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-300"
-            />
-          ) : (
-            <CoverPlaceholder category={article.category} className="h-full" />
-          )}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={coverSrc}
+            alt={article.title}
+            className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-300"
+          />
         </div>
 
         {/* Body */}
