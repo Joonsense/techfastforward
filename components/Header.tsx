@@ -1,9 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useTheme } from "next-themes";
-import { Zap, Menu, X, Sun, Moon } from "lucide-react";
+import { Zap, Menu, X, Sun, Moon, Search } from "lucide-react";
 
 const NAV_LINKS = [
   { label: "Funding",    href: "/category/funding" },
@@ -26,6 +26,70 @@ function ThemeToggle() {
     >
       {isDark ? <Sun size={14} /> : <Moon size={14} />}
     </button>
+  );
+}
+
+function HeaderSearch() {
+  const [open, setOpen] = useState(false);
+  const [query, setQuery] = useState("");
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (open && inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, [open]);
+
+  function handleClose() {
+    setOpen(false);
+    setQuery("");
+  }
+
+  function handleKey(e: React.KeyboardEvent) {
+    if (e.key === "Escape") handleClose();
+  }
+
+  return (
+    <div className="relative flex items-center">
+      {open ? (
+        <div
+          className="flex items-center gap-1.5 px-2.5 rounded-lg overflow-hidden transition-all"
+          style={{
+            background: "var(--bg-secondary)",
+            border: "1px solid var(--border)",
+            height: "32px",
+            width: "180px",
+          }}
+        >
+          <Search size={12} style={{ color: "var(--text-faint)", flexShrink: 0 }} />
+          <input
+            ref={inputRef}
+            type="search"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            onKeyDown={handleKey}
+            placeholder="Search..."
+            className="flex-1 bg-transparent outline-none text-xs min-w-0"
+            style={{ color: "var(--text)", caretColor: "var(--accent)" }}
+            autoComplete="off"
+            autoCorrect="off"
+            spellCheck={false}
+          />
+          <button onClick={handleClose} aria-label="Close search" className="flex-shrink-0">
+            <X size={12} style={{ color: "var(--text-faint)" }} />
+          </button>
+        </div>
+      ) : (
+        <button
+          onClick={() => setOpen(true)}
+          aria-label="Open search"
+          className="w-8 h-8 rounded-lg flex items-center justify-center transition-colors"
+          style={{ background: "var(--bg-secondary)", border: "1px solid var(--border)", color: "var(--text-muted)" }}
+        >
+          <Search size={14} />
+        </button>
+      )}
+    </div>
   );
 }
 
@@ -68,6 +132,7 @@ export default function Header() {
               <span className="w-1.5 h-1.5 rounded-full pulse-dot" style={{ background: "var(--accent)" }} />
               <span className="text-[10px] font-semibold uppercase tracking-wider" style={{ color: "var(--text-faint)" }}>Live</span>
             </div>
+            <HeaderSearch />
             <ThemeToggle />
             <button
               className="lg:hidden w-8 h-8 rounded-lg flex items-center justify-center"

@@ -1,8 +1,9 @@
 import { getPosts } from "@/lib/ghost";
 import ArticleCard, { type ArticleCardData } from "@/components/ArticleCard";
 import { type Category } from "@/components/CategoryBadge";
+import NewsletterForm from "@/components/NewsletterForm";
 import Link from "next/link";
-import { ArrowRight, TrendingUp, DollarSign, Cpu, Package, Handshake, Scale, Layers } from "lucide-react";
+import { ArrowRight, TrendingUp, DollarSign, Cpu, Package, Handshake, Scale, Layers, Zap } from "lucide-react";
 
 function ghostToCard(post: Awaited<ReturnType<typeof getPosts>>[number]): ArticleCardData {
   return {
@@ -112,6 +113,40 @@ export default async function HomePage() {
           );
         })}
       </div>
+
+      {/* ─── Newsletter ───────────────────────────────────── */}
+      <section className="mt-16 mb-4 fade-up fade-up-4">
+        <div
+          className="rounded-2xl px-6 py-8 sm:px-10 sm:py-10 flex flex-col sm:flex-row items-start sm:items-center gap-6"
+          style={{ background: "var(--bg-secondary)", border: "1px solid var(--border)" }}
+        >
+          {/* Icon + copy */}
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2 mb-2">
+              <div
+                className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0"
+                style={{ background: "var(--accent-bg)", border: "1px solid var(--accent-bdr)" }}
+              >
+                <Zap size={12} style={{ color: "var(--accent)" }} />
+              </div>
+              <span className="text-xs font-bold uppercase tracking-wider" style={{ color: "var(--accent)" }}>
+                Stay ahead
+              </span>
+            </div>
+            <h2 className="font-bold text-lg leading-snug mb-1" style={{ color: "var(--text)" }}>
+              The fastest AI briefing in your inbox
+            </h2>
+            <p className="text-sm" style={{ color: "var(--text-muted)" }}>
+              Daily signals on funding, model releases, and big tech moves. No noise.
+            </p>
+          </div>
+
+          {/* Form */}
+          <div className="w-full sm:w-72 flex-shrink-0">
+            <NewsletterForm />
+          </div>
+        </div>
+      </section>
 
     </div>
   );
