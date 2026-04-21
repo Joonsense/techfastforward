@@ -5,7 +5,7 @@ import { Mail, ArrowRight, CheckCircle, AlertCircle, Loader } from "lucide-react
 
 type Status = "idle" | "loading" | "success" | "error";
 
-export default function NewsletterForm() {
+export default function NewsletterForm({ compact = false }: { compact?: boolean }) {
   const [status, setStatus] = useState<Status>("idle");
   const [message, setMessage] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
@@ -42,7 +42,7 @@ export default function NewsletterForm() {
 
   return (
     <div>
-      <form onSubmit={handleSubmit} className="flex items-center gap-2">
+      <form onSubmit={handleSubmit} className={`flex ${compact ? "flex-col" : "items-center"} gap-2`}>
         {/* Email input */}
         <div
           className="flex items-center gap-2 flex-1 px-3 rounded-lg"
