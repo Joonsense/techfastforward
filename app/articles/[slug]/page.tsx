@@ -2,6 +2,7 @@ import { getPost, getPosts } from "@/lib/ghost";
 import ArticleCard, { type ArticleCardData } from "@/components/ArticleCard";
 import CategoryBadge, { type Category } from "@/components/CategoryBadge";
 import ShareButtons from "@/components/ShareButtons";
+import ArticleShell from "@/components/ArticleShell";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Clock, Calendar, ArrowLeft, User } from "lucide-react";
@@ -15,10 +16,23 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const post = await getPost(slug);
   if (!post) return { title: "Article Not Found" };
+  const canonicalUrl = `https://techfastforward.com/articles/${slug}`;
+  const ogImages = post.feature_image ? [{ url: post.feature_image }] : [];
   return {
     title: `${post.title} — TechFastForward`,
     description: post.excerpt,
+    alternates: {
+      canonical: canonicalUrl,
+    },
     openGraph: {
+      title: post.title,
+      description: post.excerpt,
+      url: canonicalUrl,
+      type: "article",
+      images: ogImages,
+    },
+    twitter: {
+      card: "summary_large_image",
       title: post.title,
       description: post.excerpt,
       images: post.feature_image ? [post.feature_image] : [],
@@ -58,6 +72,7 @@ export default async function ArticlePage({ params }: Props) {
   const articleUrl = `https://techfastforward.com/articles/${slug}`;
 
   return (
+    <ArticleShell>
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       {/* Back */}
       <div className="mb-6">
@@ -200,5 +215,6 @@ export default async function ArticlePage({ params }: Props) {
         </aside>
       </div>
     </div>
+    </ArticleShell>
   );
 }
