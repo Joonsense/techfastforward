@@ -2,85 +2,91 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { Zap, Menu, X } from "lucide-react";
+import { useTheme } from "next-themes";
+import { Zap, Menu, X, Sun, Moon } from "lucide-react";
 
 const NAV_LINKS = [
-  { label: "Funding", href: "/category/funding" },
-  { label: "Models", href: "/category/model_release" },
-  { label: "Big Tech", href: "/category/technology" },
-  { label: "Products", href: "/category/product_launch" },
-  { label: "Analysis", href: "/category/other" },
+  { label: "Funding",    href: "/category/funding" },
+  { label: "Models",     href: "/category/model_release" },
+  { label: "Big Tech",   href: "/category/technology" },
+  { label: "Products",   href: "/category/product_launch" },
+  { label: "M&A",        href: "/category/acquisition" },
+  { label: "Regulation", href: "/category/regulation" },
 ];
+
+function ThemeToggle() {
+  const { theme, setTheme } = useTheme();
+  const isDark = theme === "dark";
+  return (
+    <button
+      onClick={() => setTheme(isDark ? "light" : "dark")}
+      aria-label="Toggle theme"
+      className="w-8 h-8 rounded-lg flex items-center justify-center transition-colors"
+      style={{ background: "var(--bg-secondary)", border: "1px solid var(--border)", color: "var(--text-muted)" }}
+    >
+      {isDark ? <Sun size={14} /> : <Moon size={14} />}
+    </button>
+  );
+}
 
 export default function Header() {
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [lang, setLang] = useState<"EN" | "KO">("EN");
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-white/5 bg-[#07080e]/90 backdrop-blur-md">
+    <header
+      className="sticky top-0 z-50 w-full backdrop-blur-md"
+      style={{ borderBottom: "1px solid var(--border)", background: "color-mix(in srgb, var(--bg) 94%, transparent)" }}
+    >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-14">
+
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-2 group">
-            <div className="w-6 h-6 rounded bg-[#f97316]/10 border border-[#f97316]/30 flex items-center justify-center">
-              <Zap size={12} className="text-[#f97316]" />
+          <Link href="/" className="flex items-center gap-2 flex-shrink-0">
+            <div className="w-6 h-6 rounded flex items-center justify-center" style={{ background: "var(--accent-bg)", border: "1px solid var(--accent-bdr)" }}>
+              <Zap size={12} style={{ color: "var(--accent)" }} />
             </div>
-            <span className="text-white font-bold text-sm tracking-tight">
-              TechFast<span className="text-[#f97316]">Forward</span>
+            <span className="font-bold text-sm tracking-tight" style={{ color: "var(--text)" }}>
+              TechFast<span style={{ color: "var(--accent)" }}>Forward</span>
             </span>
           </Link>
 
           {/* Desktop Nav */}
-          <nav className="hidden md:flex items-center gap-1">
+          <nav className="hidden lg:flex items-center">
             {NAV_LINKS.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className="px-3 py-1.5 text-xs font-medium text-white/50 hover:text-white/90 rounded-md hover:bg-white/5 transition-all duration-150"
+              <Link key={link.href} href={link.href}
+                className="px-3 py-1.5 text-xs font-medium rounded-md transition-colors"
+                style={{ color: "var(--text-muted)" }}
               >
                 {link.label}
               </Link>
             ))}
           </nav>
 
-          {/* Right controls */}
-          <div className="flex items-center gap-3">
-            {/* Live dot */}
+          {/* Right */}
+          <div className="flex items-center gap-2.5">
             <div className="hidden sm:flex items-center gap-1.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#f97316] pulse-dot" />
-              <span className="text-[10px] font-medium text-white/40 uppercase tracking-wider">Live</span>
+              <span className="w-1.5 h-1.5 rounded-full pulse-dot" style={{ background: "var(--accent)" }} />
+              <span className="text-[10px] font-semibold uppercase tracking-wider" style={{ color: "var(--text-faint)" }}>Live</span>
             </div>
-
-            {/* Lang toggle */}
+            <ThemeToggle />
             <button
-              onClick={() => setLang(lang === "EN" ? "KO" : "EN")}
-              className="flex items-center gap-0.5 px-2 py-1 rounded border border-white/10 text-[10px] font-semibold text-white/50 hover:text-white/80 hover:border-white/20 transition-all"
-            >
-              <span className={lang === "KO" ? "text-[#f97316]" : "text-white/40"}>KO</span>
-              <span className="text-white/20 mx-0.5">/</span>
-              <span className={lang === "EN" ? "text-[#f97316]" : "text-white/40"}>EN</span>
-            </button>
-
-            {/* Mobile menu button */}
-            <button
-              className="md:hidden p-1.5 rounded text-white/50 hover:text-white/80 hover:bg-white/5 transition-all"
+              className="lg:hidden w-8 h-8 rounded-lg flex items-center justify-center"
+              style={{ background: "var(--bg-secondary)", border: "1px solid var(--border)", color: "var(--text-muted)" }}
               onClick={() => setMobileOpen(!mobileOpen)}
             >
-              {mobileOpen ? <X size={16} /> : <Menu size={16} />}
+              {mobileOpen ? <X size={14} /> : <Menu size={14} />}
             </button>
           </div>
         </div>
 
         {/* Mobile nav */}
         {mobileOpen && (
-          <div className="md:hidden border-t border-white/5 py-3 pb-4">
-            <nav className="flex flex-col gap-1">
+          <div className="lg:hidden py-3 pb-4" style={{ borderTop: "1px solid var(--border)" }}>
+            <nav className="flex flex-col">
               {NAV_LINKS.map((link) => (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  onClick={() => setMobileOpen(false)}
-                  className="px-3 py-2 text-sm font-medium text-white/60 hover:text-white rounded-md hover:bg-white/5 transition-all"
+                <Link key={link.href} href={link.href} onClick={() => setMobileOpen(false)}
+                  className="px-3 py-2.5 text-sm font-medium rounded-md"
+                  style={{ color: "var(--text-muted)" }}
                 >
                   {link.label}
                 </Link>

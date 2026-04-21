@@ -2,7 +2,7 @@ import { getPosts } from "@/lib/ghost";
 import ArticleCard, { type ArticleCardData } from "@/components/ArticleCard";
 import { type Category } from "@/components/CategoryBadge";
 import Link from "next/link";
-import { ArrowRight, TrendingUp, DollarSign, Cpu, Package, BarChart2 } from "lucide-react";
+import { ArrowRight, TrendingUp, DollarSign, Cpu, Package, Handshake, Scale, Layers } from "lucide-react";
 
 function ghostToCard(post: Awaited<ReturnType<typeof getPosts>>[number]): ArticleCardData {
   return {
@@ -18,39 +18,35 @@ function ghostToCard(post: Awaited<ReturnType<typeof getPosts>>[number]): Articl
 }
 
 const CATEGORY_SECTIONS = [
-  {
-    label: "Funding Rounds",
-    tag: "funding",
-    icon: DollarSign,
-    color: "text-emerald-400",
-  },
-  {
-    label: "Model Releases",
-    tag: "model_release",
-    icon: Cpu,
-    color: "text-blue-400",
-  },
-  {
-    label: "Big Tech",
-    tag: "technology",
-    icon: TrendingUp,
-    color: "text-orange-400",
-  },
-  {
-    label: "Product Launches",
-    tag: "product_launch",
-    icon: Package,
-    color: "text-purple-400",
-  },
+  { label: "Funding Rounds",  tag: "funding",        icon: DollarSign, color: "text-emerald-600 dark:text-emerald-400" },
+  { label: "Model Releases",  tag: "model_release",  icon: Cpu,        color: "text-blue-600 dark:text-blue-400" },
+  { label: "Big Tech",        tag: "technology",     icon: TrendingUp, color: "text-orange-600 dark:text-orange-400" },
+  { label: "Product Launches",tag: "product_launch", icon: Package,    color: "text-violet-600 dark:text-violet-400" },
+  { label: "M&A / Deals",     tag: "acquisition",    icon: Layers,     color: "text-red-600 dark:text-red-400" },
+  { label: "Partnerships",    tag: "partnership",    icon: Handshake,  color: "text-cyan-600 dark:text-cyan-400" },
+  { label: "Regulation",      tag: "regulation",     icon: Scale,      color: "text-yellow-600 dark:text-yellow-500" },
 ];
 
+function SectionHeader({ label, icon: Icon, color, href }: { label: string; icon: React.ElementType; color: string; href: string }) {
+  return (
+    <div className="flex items-center justify-between mb-4">
+      <div className="flex items-center gap-2">
+        <Icon size={14} className={color} />
+        <h3 className={`font-bold text-sm uppercase tracking-wider ${color}`}>{label}</h3>
+      </div>
+      <Link href={href} className="flex items-center gap-1 text-[10px] transition-colors" style={{ color: "var(--text-faint)" }}>
+        More <ArrowRight size={10} />
+      </Link>
+    </div>
+  );
+}
+
 export default async function HomePage() {
-  const allPosts = await getPosts(20);
+  const allPosts = await getPosts(30);
   const cards = allPosts.map(ghostToCard);
 
   const featured = cards[0];
   const latestThree = cards.slice(1, 4);
-  const remainingCards = cards.slice(4);
 
   const isDemoMode = !process.env.GHOST_CONTENT_KEY || process.env.GHOST_CONTENT_KEY === "placeholder";
 
@@ -59,38 +55,37 @@ export default async function HomePage() {
 
       {/* Demo banner */}
       {isDemoMode && (
-        <div className="mb-6 flex items-center gap-3 px-4 py-2.5 rounded-lg border border-[#f97316]/20 bg-[#f97316]/5">
-          <span className="w-1.5 h-1.5 rounded-full bg-[#f97316] pulse-dot flex-shrink-0" />
-          <p className="text-[#f97316]/80 text-xs font-medium">
+        <div
+          className="mb-6 flex items-center gap-3 px-4 py-2.5 rounded-xl"
+          style={{ background: "var(--accent-bg)", border: "1px solid var(--accent-bdr)" }}
+        >
+          <span className="w-1.5 h-1.5 rounded-full pulse-dot flex-shrink-0" style={{ background: "var(--accent)" }} />
+          <p className="text-xs font-medium" style={{ color: "var(--accent)" }}>
             DEMO MODE — Connect Ghost CMS via{" "}
-            <code className="text-[#f97316] bg-[#f97316]/10 px-1 rounded">.env.local</code>
+            <code className="px-1 py-0.5 rounded text-[11px]" style={{ background: "var(--accent-bdr)" }}>.env.local</code>
             {" "}to display live articles
           </p>
         </div>
       )}
 
-      {/* ─── Hero Featured Article ─────────────────────────────────── */}
+      {/* ─── Hero ────────────────────────────────────────── */}
       {featured && (
         <section className="mb-10 fade-up fade-up-1">
           <ArticleCard article={featured} variant="featured" />
         </section>
       )}
 
-      {/* ─── Latest Articles ───────────────────────────────────────── */}
+      {/* ─── Latest ──────────────────────────────────────── */}
       <section className="mb-12 fade-up fade-up-2">
         <div className="flex items-center justify-between mb-5">
           <div className="flex items-center gap-2">
-            <span className="w-0.5 h-5 bg-[#f97316] rounded-full" />
-            <h2 className="text-white font-bold text-base uppercase tracking-wider">Latest</h2>
+            <span className="w-0.5 h-5 rounded-full" style={{ background: "var(--accent)" }} />
+            <h2 className="font-bold text-sm uppercase tracking-wider" style={{ color: "var(--text)" }}>Latest</h2>
           </div>
-          <Link
-            href="/category/all"
-            className="flex items-center gap-1 text-xs text-white/40 hover:text-[#f97316] transition-colors font-medium"
-          >
+          <Link href="/category/all" className="flex items-center gap-1 text-xs transition-colors" style={{ color: "var(--text-faint)" }}>
             View all <ArrowRight size={12} />
           </Link>
         </div>
-
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {latestThree.map((article) => (
             <ArticleCard key={article.slug} article={article} variant="default" />
@@ -98,31 +93,15 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* ─── Category Sections ────────────────────────────────────── */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 fade-up fade-up-3">
-        {CATEGORY_SECTIONS.map(({ label, tag, icon: Icon, color }) => {
-          const catPosts = cards.filter((c) => c.category === tag).slice(0, 3);
-
+      {/* ─── Category Sections 2-col ─────────────────────── */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 fade-up fade-up-3">
+        {CATEGORY_SECTIONS.map(({ label, tag, icon, color }) => {
+          const catPosts = cards.filter((c) => c.category === tag).slice(0, 4);
           if (catPosts.length === 0) return null;
-
           return (
             <section key={tag}>
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-2">
-                  <Icon size={14} className={color} />
-                  <h3 className={`font-bold text-sm uppercase tracking-wider ${color}`}>
-                    {label}
-                  </h3>
-                </div>
-                <Link
-                  href={`/category/${tag}`}
-                  className="flex items-center gap-1 text-[10px] text-white/30 hover:text-white/60 transition-colors"
-                >
-                  More <ArrowRight size={10} />
-                </Link>
-              </div>
-
-              <div className="rounded-xl border border-white/8 bg-[#0d0e15] divide-y divide-white/5 overflow-hidden">
+              <SectionHeader label={label} icon={icon} color={color} href={`/category/${tag}`} />
+              <div className="rounded-xl overflow-hidden" style={{ border: "1px solid var(--border)", background: "var(--bg-secondary)" }}>
                 {catPosts.map((article) => (
                   <div key={article.slug} className="px-4">
                     <ArticleCard article={article} variant="compact" />
@@ -134,24 +113,6 @@ export default async function HomePage() {
         })}
       </div>
 
-      {/* ─── Analysis / Opinion strip ─────────────────────────────── */}
-      {(() => {
-        const analysisPosts = cards.filter((c) => c.category === "other").slice(0, 2);
-        if (analysisPosts.length === 0) return null;
-        return (
-          <section className="mt-12 fade-up fade-up-4">
-            <div className="flex items-center gap-2 mb-5">
-              <BarChart2 size={14} className="text-white/50" />
-              <h2 className="text-white font-bold text-sm uppercase tracking-wider">Analysis</h2>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {analysisPosts.map((article) => (
-                <ArticleCard key={article.slug} article={article} variant="default" />
-              ))}
-            </div>
-          </section>
-        );
-      })()}
     </div>
   );
 }
