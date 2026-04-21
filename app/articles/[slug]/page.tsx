@@ -3,6 +3,7 @@ import ArticleCard, { type ArticleCardData } from "@/components/ArticleCard";
 import CategoryBadge, { type Category } from "@/components/CategoryBadge";
 import ShareButtons from "@/components/ShareButtons";
 import ArticleShell from "@/components/ArticleShell";
+import ArticleBody from "@/components/ArticleBody";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Clock, Calendar, ArrowLeft, User } from "lucide-react";
@@ -162,26 +163,10 @@ export default async function ArticlePage({ params }: Props) {
           )}
 
           {/* Body */}
-          <div
-            className="prose prose-sm sm:prose-base max-w-none
-              prose-headings:font-bold
-              prose-a:no-underline hover:prose-a:underline
-              prose-code:px-1 prose-code:rounded
-              prose-pre:border
-              dark:prose-invert
-              dark:prose-headings:text-white
-              dark:prose-p:text-white/70
-              dark:prose-a:text-orange-400
-              dark:prose-strong:text-white
-              dark:prose-code:text-orange-400
-              dark:prose-code:bg-orange-400/10
-              dark:prose-pre:bg-[#0d0e17]
-              dark:prose-pre:border-white/10
-              dark:prose-blockquote:border-orange-400
-              dark:prose-hr:border-white/10
-              dark:prose-li:text-white/70"
-            style={{ color: "var(--text-2)" }}
-            dangerouslySetInnerHTML={{ __html: article.body_html ?? `<p>${article.excerpt}</p>` }}
+          <ArticleBody
+            bodyHtml={article.body_html}
+            bodyHtmlKo={article.body_html_ko}
+            excerpt={article.excerpt}
           />
 
           {/* Share — bottom */}
