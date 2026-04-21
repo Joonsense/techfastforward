@@ -18,7 +18,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const article = await getArticle(slug);
   if (!article) return { title: "Article Not Found" };
   const canonicalUrl = `https://techfastforward.com/articles/${slug}`;
-  const ogImages = article.cover_image_url ? [{ url: article.cover_image_url }] : [];
+  const siteUrl = "https://techfastforward.com";
+  const ogImageUrl = article.cover_image_url
+    ? article.cover_image_url
+    : `${siteUrl}/og?title=${encodeURIComponent(article.title)}&category=${article.category}&excerpt=${encodeURIComponent(article.excerpt)}`;
+
   return {
     title: `${article.title} — TechFastForward`,
     description: article.excerpt,
@@ -28,13 +32,15 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       description: article.excerpt,
       url: canonicalUrl,
       type: "article",
-      images: ogImages,
+      publishedTime: article.published_at ?? article.created_at,
+      tags: article.tags ?? [],
+      images: [{ url: ogImageUrl, width: 1200, height: 630 }],
     },
     twitter: {
       card: "summary_large_image",
       title: article.title,
       description: article.excerpt,
-      images: article.cover_image_url ? [article.cover_image_url] : [],
+      images: [ogImageUrl],
     },
   };
 }
@@ -69,9 +75,27 @@ export default async function ArticlePage({ params }: Props) {
     }));
 
   const articleUrl = `https://techfastforward.com/articles/${slug}`;
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "NewsArticle",
+    headline: article.title,
+    description: article.excerpt,
+    url: articleUrl,
+    datePublished: article.published_at ?? article.created_at,
+    dateModified: article.published_at ?? article.created_at,
+    author: { "@type": "Organization", name: article.author ?? "TFF Editorial" },
+    publisher: {
+      "@type": "Organization",
+      name: "TechFastForward",
+      logo: { "@type": "ImageObject", url: "https://techfastforward.com/icon.png" },
+    },
+    ...(article.cover_image_url && { image: [article.cover_image_url] }),
+    keywords: article.tags?.join(", ") ?? article.category,
+  };
 
   return (
     <ArticleShell>
+    <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       {/* Back */}
       <div className="mb-6">
