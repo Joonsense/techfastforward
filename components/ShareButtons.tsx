@@ -15,7 +15,7 @@ export default function ShareButtons({ title, url }: ShareButtonsProps) {
   const encodedTitle = encodeURIComponent(title);
   const encodedUrl = encodeURIComponent(shareUrl);
 
-  const twitterUrl = `https://twitter.com/intent/tweet?text=${encodedTitle}&url=${encodedUrl}&via=techfastforward`;
+  const twitterUrl = `https://twitter.com/intent/tweet?text=${encodedTitle}&url=${encodedUrl}`;
   const linkedinUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodedUrl}`;
 
   const copyLink = async () => {
