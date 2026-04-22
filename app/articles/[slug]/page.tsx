@@ -9,6 +9,21 @@ import { notFound } from "next/navigation";
 import { Clock, Calendar, ArrowLeft, User } from "lucide-react";
 import type { Metadata } from "next";
 
+export const revalidate = 60;
+
+const SITE_URL = "https://techfastforward.com";
+
+const CATEGORY_SECTION: Record<string, string> = {
+  funding:        "Funding Rounds",
+  model_release:  "Model Releases",
+  technology:     "Big Tech",
+  product_launch: "Product Launches",
+  acquisition:    "M&A",
+  partnership:    "Partnerships",
+  regulation:     "Regulation",
+  other:          "Analysis",
+};
+
 interface Props {
   params: Promise<{ slug: string }>;
 }
@@ -17,30 +32,51 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const article = await getArticle(slug);
   if (!article) return { title: "Article Not Found" };
-  const canonicalUrl = `https://techfastforward.com/articles/${slug}`;
-  const siteUrl = "https://techfastforward.com";
+
+  const canonicalUrl = `${SITE_URL}/articles/${slug}`;
   const ogImageUrl = article.cover_image_url
     ? article.cover_image_url
-    : `${siteUrl}/og?title=${encodeURIComponent(article.title)}&category=${article.category}&excerpt=${encodeURIComponent(article.excerpt)}`;
+    : `${SITE_URL}/og?title=${encodeURIComponent(article.title)}&category=${article.category}&excerpt=${encodeURIComponent(article.excerpt)}`;
+  const section = CATEGORY_SECTION[article.category] ?? "Technology";
+  const keywords = [
+    ...(article.tags ?? []),
+    article.category,
+    "AI news",
+    "technology",
+    section,
+  ].filter(Boolean);
 
   return {
-    title: `${article.title} | TechFastForward`,
+    title: article.title,
     description: article.excerpt,
+    keywords,
+    authors: [{ name: article.author ?? "TFF Editorial", url: SITE_URL }],
     alternates: { canonical: canonicalUrl },
     openGraph: {
       title: article.title,
       description: article.excerpt,
       url: canonicalUrl,
       type: "article",
+      siteName: "TechFastForward",
       publishedTime: article.published_at ?? article.created_at,
+      modifiedTime: article.published_at ?? article.created_at,
+      authors: [article.author ?? "TFF Editorial"],
+      section,
       tags: article.tags ?? [],
-      images: [{ url: ogImageUrl, width: 1200, height: 630 }],
+      images: [{ url: ogImageUrl, width: 1200, height: 630, alt: article.title }],
     },
     twitter: {
       card: "summary_large_image",
       title: article.title,
       description: article.excerpt,
-      images: [ogImageUrl],
+      images: [{ url: ogImageUrl, alt: article.title }],
+      creator: "@techfastforward",
+      site: "@techfastforward",
+    },
+    other: {
+      "article:section": section,
+      "article:author": article.author ?? "TFF Editorial",
+      "news_keywords": keywords.join(", "),
     },
   };
 }
@@ -74,28 +110,64 @@ export default async function ArticlePage({ params }: Props) {
       readingTime: a.reading_time_min ?? undefined,
     }));
 
-  const articleUrl = `https://techfastforward.com/articles/${slug}`;
+  const articleUrl = `${SITE_URL}/articles/${slug}`;
+  const ogImageUrl = article.cover_image_url
+    ? article.cover_image_url
+    : `${SITE_URL}/og?title=${encodeURIComponent(article.title)}&category=${article.category}&excerpt=${encodeURIComponent(article.excerpt)}`;
+
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "NewsArticle",
     headline: article.title,
     description: article.excerpt,
     url: articleUrl,
+    mainEntityOfPage: { "@type": "WebPage", "@id": articleUrl },
     datePublished: article.published_at ?? article.created_at,
     dateModified: article.published_at ?? article.created_at,
-    author: { "@type": "Organization", name: article.author ?? "TFF Editorial" },
-    publisher: {
-      "@type": "Organization",
-      name: "TechFastForward",
-      logo: { "@type": "ImageObject", url: "https://techfastforward.com/icon.png" },
+    author: {
+      "@type": "Person",
+      name: article.author ?? "TFF Editorial",
+      url: SITE_URL,
     },
-    ...(article.cover_image_url && { image: [article.cover_image_url] }),
+    publisher: {
+      "@type": "NewsMediaOrganization",
+      name: "TechFastForward",
+      url: SITE_URL,
+      logo: {
+        "@type": "ImageObject",
+        url: `${SITE_URL}/icon.png`,
+        width: 512,
+        height: 512,
+      },
+    },
+    image: {
+      "@type": "ImageObject",
+      url: ogImageUrl,
+      width: 1200,
+      height: 630,
+    },
     keywords: article.tags?.join(", ") ?? article.category,
+    articleSection: CATEGORY_SECTION[article.category] ?? "Technology",
+    inLanguage: "en-US",
+    ...(article.key_takeaways && article.key_takeaways.length > 0 && {
+      abstract: article.key_takeaways.join(" "),
+    }),
+  };
+
+  const breadcrumbJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Home", item: SITE_URL },
+      { "@type": "ListItem", position: 2, name: CATEGORY_SECTION[article.category] ?? "Articles", item: `${SITE_URL}/category/${article.category}` },
+      { "@type": "ListItem", position: 3, name: article.title, item: articleUrl },
+    ],
   };
 
   return (
     <ArticleShell>
     <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+    <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }} />
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       {/* Back */}
       <div className="mb-6">

@@ -1,4 +1,6 @@
 import { getArticles, type Article } from "@/lib/articles";
+
+export const revalidate = 60;
 import ArticleCard, { type ArticleCardData } from "@/components/ArticleCard";
 import { type Category } from "@/components/CategoryBadge";
 import Link from "next/link";
