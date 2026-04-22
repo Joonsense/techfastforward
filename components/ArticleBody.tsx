@@ -9,15 +9,24 @@ interface ArticleBodyProps {
   excerpt: string;
 }
 
+function sanitize(html: string): string {
+  return html
+    .replace(/—/g, ", ")
+    .replace(/&mdash;/g, ", ")
+    .replace(/–/g, " ")
+    .replace(/&ndash;/g, " ")
+    .replace(/ - /g, ", ");
+}
+
 export default function ArticleBody({ bodyHtml, bodyHtmlKo, excerpt }: ArticleBodyProps) {
   const [lang, setLang] = useState<"en" | "ko">("en");
 
   const hasKo = !!bodyHtmlKo;
-  const content = lang === "ko" && hasKo ? bodyHtmlKo : (bodyHtml ?? `<p>${excerpt}</p>`);
+  const raw = lang === "ko" && hasKo ? bodyHtmlKo : (bodyHtml ?? `<p>${excerpt}</p>`);
+  const content = sanitize(raw);
 
   return (
     <div>
-      {/* Language toggle */}
       {hasKo && (
         <div className="flex items-center gap-2 mb-6">
           <Languages size={13} style={{ color: "var(--text-faint)" }} />
@@ -50,24 +59,7 @@ export default function ArticleBody({ bodyHtml, bodyHtmlKo, excerpt }: ArticleBo
       )}
 
       <div
-        className="prose prose-sm sm:prose-base max-w-none
-          prose-headings:font-bold
-          prose-a:no-underline hover:prose-a:underline
-          prose-code:px-1 prose-code:rounded
-          prose-pre:border
-          dark:prose-invert
-          dark:prose-headings:text-white
-          dark:prose-p:text-white/70
-          dark:prose-a:text-orange-400
-          dark:prose-strong:text-white
-          dark:prose-code:text-orange-400
-          dark:prose-code:bg-orange-400/10
-          dark:prose-pre:bg-[#0d0e17]
-          dark:prose-pre:border-white/10
-          dark:prose-blockquote:border-orange-400
-          dark:prose-hr:border-white/10
-          dark:prose-li:text-white/70"
-        style={{ color: "var(--text-2)" }}
+        className="article-body"
         dangerouslySetInnerHTML={{ __html: content }}
       />
     </div>

@@ -3,7 +3,7 @@ import ArticleCard, { type ArticleCardData } from "@/components/ArticleCard";
 import BreakingTicker from "@/components/BreakingTicker";
 import NewsletterForm from "@/components/NewsletterForm";
 import Link from "next/link";
-import { ArrowRight, TrendingUp, DollarSign, Cpu, Package, Handshake, Scale, Layers, Zap, Languages } from "lucide-react";
+import { ArrowRight, TrendingUp, DollarSign, Cpu, Package, Handshake, Scale, Layers, Zap } from "lucide-react";
 import type { Metadata } from "next";
 
 export const revalidate = 60;
@@ -87,26 +87,6 @@ export default async function KoHomePage() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-
-      {/* Language banner */}
-      <div
-        className="mb-6 flex items-center justify-between gap-3 px-4 py-2.5 rounded-xl"
-        style={{ background: "var(--bg-secondary)", border: "1px solid var(--border)" }}
-      >
-        <div className="flex items-center gap-2">
-          <Languages size={13} style={{ color: "var(--text-faint)" }} />
-          <p className="text-xs" style={{ color: "var(--text-muted)" }}>
-            한국어 번역이 순차적으로 제공됩니다. 현재 영어 콘텐츠로 표시됩니다.
-          </p>
-        </div>
-        <Link
-          href="/"
-          className="text-[10px] font-medium px-2 py-1 rounded-md flex-shrink-0"
-          style={{ background: "var(--accent-bg)", border: "1px solid var(--accent-bdr)", color: "var(--accent)" }}
-        >
-          English
-        </Link>
-      </div>
 
       {/* Breaking Ticker */}
       <BreakingTicker items={cards.slice(0, 10).map((c) => ({ slug: c.slug, title: c.title, category: c.category }))} />
