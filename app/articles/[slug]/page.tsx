@@ -24,6 +24,43 @@ const CATEGORY_SECTION: Record<string, string> = {
   other:          "Analysis",
 };
 
+function categoryMentions(category: string) {
+  const categoryAbout: Record<string, object> = {
+    funding: {
+      about: { "@type": "Thing", "name": "Venture Capital & AI Funding", "sameAs": "https://en.wikipedia.org/wiki/Venture_capital" },
+      mentions: [{ "@type": "Corporation", "name": "Artificial Intelligence Industry" }],
+    },
+    model_release: {
+      about: { "@type": "Thing", "name": "Artificial Intelligence Models", "sameAs": "https://en.wikipedia.org/wiki/Large_language_model" },
+      mentions: [{ "@type": "SoftwareApplication", "applicationCategory": "ArtificialIntelligence", "name": "AI Language Model" }],
+    },
+    technology: {
+      about: { "@type": "Thing", "name": "Big Tech & AI Strategy", "sameAs": "https://en.wikipedia.org/wiki/Big_Tech" },
+      mentions: [{ "@type": "Corporation", "name": "Technology Industry" }],
+    },
+    product_launch: {
+      about: { "@type": "Thing", "name": "AI Product Innovation", "sameAs": "https://en.wikipedia.org/wiki/Artificial_intelligence" },
+      mentions: [{ "@type": "SoftwareApplication", "applicationCategory": "ArtificialIntelligence", "name": "AI Software Product" }],
+    },
+    acquisition: {
+      about: { "@type": "Thing", "name": "Mergers & Acquisitions in AI", "sameAs": "https://en.wikipedia.org/wiki/Mergers_and_acquisitions" },
+      mentions: [{ "@type": "Corporation", "name": "AI Technology Company" }],
+    },
+    partnership: {
+      about: { "@type": "Thing", "name": "AI Industry Partnerships", "sameAs": "https://en.wikipedia.org/wiki/Strategic_alliance" },
+      mentions: [{ "@type": "Corporation", "name": "Technology Partnership" }],
+    },
+    regulation: {
+      about: { "@type": "Thing", "name": "AI Regulation & Governance", "sameAs": "https://en.wikipedia.org/wiki/Regulation_of_artificial_intelligence" },
+      mentions: [{ "@type": "GovernmentOrganization", "name": "AI Regulatory Body" }],
+    },
+    other: {
+      about: { "@type": "Thing", "name": "Artificial Intelligence", "sameAs": "https://en.wikipedia.org/wiki/Artificial_intelligence" },
+    },
+  };
+  return categoryAbout[category] ?? categoryAbout.other;
+}
+
 interface Props {
   params: Promise<{ slug: string }>;
 }
@@ -51,7 +88,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     description: article.excerpt,
     keywords,
     authors: [{ name: article.author ?? "TFF Editorial", url: SITE_URL }],
-    alternates: { canonical: canonicalUrl },
+    alternates: {
+      canonical: canonicalUrl,
+      languages: {
+        "en": canonicalUrl,
+        "ko": `${SITE_URL}/ko/articles/${slug}`,
+        "x-default": canonicalUrl,
+      },
+    },
     openGraph: {
       title: article.title,
       description: article.excerpt,
@@ -111,6 +155,7 @@ export default async function ArticlePage({ params }: Props) {
     }));
 
   const articleUrl = `${SITE_URL}/articles/${slug}`;
+  const embedUrl = `${SITE_URL}/embed/${slug}`;
   const ogImageUrl = article.cover_image_url
     ? article.cover_image_url
     : `${SITE_URL}/og?title=${encodeURIComponent(article.title)}&category=${article.category}&excerpt=${encodeURIComponent(article.excerpt)}`;
@@ -152,6 +197,11 @@ export default async function ArticlePage({ params }: Props) {
     ...(article.key_takeaways && article.key_takeaways.length > 0 && {
       abstract: article.key_takeaways.join(" "),
     }),
+    speakable: {
+      "@type": "SpeakableSpecification",
+      cssSelector: ["#article-headline", "#article-excerpt"],
+    },
+    ...categoryMentions(article.category),
   };
 
   const breadcrumbJsonLd = {
@@ -204,11 +254,11 @@ export default async function ArticlePage({ params }: Props) {
               <CategoryBadge category={category} size="md" />
             </div>
 
-            <h1 className="font-bold text-2xl sm:text-3xl lg:text-4xl leading-tight mb-4" style={{ color: "var(--text)" }}>
+            <h1 id="article-headline" className="font-bold text-2xl sm:text-3xl lg:text-4xl leading-tight mb-4" style={{ color: "var(--text)" }}>
               {article.title}
             </h1>
 
-            <p className="text-base leading-relaxed mb-5 border-l-2 pl-4" style={{ color: "var(--text-muted)", borderColor: "var(--accent)" }}>
+            <p id="article-excerpt" className="text-base leading-relaxed mb-5 border-l-2 pl-4" style={{ color: "var(--text-muted)", borderColor: "var(--accent)" }}>
               {article.excerpt}
             </p>
 
@@ -242,7 +292,7 @@ export default async function ArticlePage({ params }: Props) {
             </div>
 
             {/* Share — top */}
-            <ShareButtons title={article.title} url={articleUrl} />
+            <ShareButtons title={article.title} url={articleUrl} author={article.author ?? "TFF Editorial"} date={article.published_at ?? article.created_at} />
           </header>
 
           {/* Key Takeaways */}
@@ -269,7 +319,22 @@ export default async function ArticlePage({ params }: Props) {
 
           {/* Share — bottom */}
           <div className="mt-10 pt-6" style={{ borderTop: "1px solid var(--border)" }}>
-            <ShareButtons title={article.title} url={articleUrl} />
+            <ShareButtons title={article.title} url={articleUrl} author={article.author ?? "TFF Editorial"} date={article.published_at ?? article.created_at} />
+            <details className="mt-4 group">
+              <summary
+                className="cursor-pointer text-[10px] font-medium select-none list-none"
+                style={{ color: "var(--text-faint)" }}
+              >
+                &lt;/&gt; Embed this article
+              </summary>
+              <div className="mt-2 p-3 rounded-lg" style={{ background: "var(--bg-secondary)", border: "1px solid var(--border)" }}>
+                <p className="text-[10px] mb-2" style={{ color: "var(--text-faint)" }}>Copy the iframe code below to embed on your site:</p>
+                <code
+                  className="block text-[10px] leading-relaxed break-all"
+                  style={{ color: "var(--text-muted)", fontFamily: "monospace" }}
+                >{`<iframe src="${embedUrl}" width="480" height="260" frameborder="0" style="border-radius:16px;max-width:100%;" loading="lazy"></iframe>`}</code>
+              </div>
+            </details>
           </div>
         </article>
 

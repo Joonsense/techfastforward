@@ -3,7 +3,8 @@
 import Link from "next/link";
 import { useState, useRef, useEffect } from "react";
 import { useTheme } from "next-themes";
-import { Zap, Menu, X, Sun, Moon, Search } from "lucide-react";
+import { usePathname } from "next/navigation";
+import { Zap, Menu, X, Sun, Moon, Search, Languages } from "lucide-react";
 
 const NAV_LINKS = [
   { label: "Funding",    href: "/category/funding" },
@@ -93,6 +94,28 @@ function HeaderSearch() {
   );
 }
 
+function LangToggle() {
+  const pathname = usePathname();
+  const isKo = pathname.startsWith("/ko");
+  const targetHref = isKo ? "/" : "/ko";
+
+  return (
+    <Link
+      href={targetHref}
+      className="flex items-center gap-1 px-2 py-1 rounded-md text-[10px] font-semibold transition-colors"
+      style={{
+        background: "var(--bg-secondary)",
+        border: "1px solid var(--border)",
+        color: "var(--text-faint)",
+      }}
+      title={isKo ? "Switch to English" : "한국어로 보기"}
+    >
+      <Languages size={11} />
+      {isKo ? "EN" : "한국어"}
+    </Link>
+  );
+}
+
 export default function Header() {
   const [mobileOpen, setMobileOpen] = useState(false);
 
@@ -132,6 +155,7 @@ export default function Header() {
               <span className="w-1.5 h-1.5 rounded-full pulse-dot" style={{ background: "var(--accent)" }} />
               <span className="text-[10px] font-semibold uppercase tracking-wider" style={{ color: "var(--text-faint)" }}>Live</span>
             </div>
+            <LangToggle />
             <HeaderSearch />
             <ThemeToggle />
             <button
