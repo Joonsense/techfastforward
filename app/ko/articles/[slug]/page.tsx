@@ -196,6 +196,24 @@ export default async function KoArticlePage({ params }: Props) {
             excerpt={article.excerpt}
           />
 
+          {/* Korea Market Impact */}
+          {(article.korea_impact_ko || article.korea_impact) && (article.korea_impact_ko ?? article.korea_impact)!.length > 0 && (
+            <div className="mt-10 p-5 rounded-xl" style={{ background: "var(--bg-secondary)", border: "1px solid var(--border)" }}>
+              <div className="flex items-center gap-2 mb-3">
+                <span className="text-base leading-none">🇰🇷</span>
+                <p className="text-[10px] font-bold uppercase tracking-wider" style={{ color: "var(--text-faint)" }}>한국 시장 임팩트</p>
+              </div>
+              <ul className="space-y-2">
+                {(article.korea_impact_ko ?? article.korea_impact)!.map((point, i) => (
+                  <li key={i} className="flex items-start gap-2 text-sm" style={{ color: "var(--text-muted)" }}>
+                    <span className="mt-1.5 w-1 h-1 rounded-full flex-shrink-0" style={{ background: "var(--text-faint)" }} />
+                    {point}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
           <div className="mt-10 pt-6" style={{ borderTop: "1px solid var(--border)" }}>
             <ShareButtons title={article.title_ko || article.title} url={articleUrl} locale="ko" />
           </div>

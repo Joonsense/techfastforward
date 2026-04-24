@@ -9,7 +9,7 @@ interface ArticleBodyProps {
   excerpt: string;
 }
 
-function sanitize(html: string): string {
+function normalizeDashes(html: string): string {
   return html
     .replace(/—/g, ", ")
     .replace(/&mdash;/g, ", ")
@@ -23,7 +23,7 @@ export default function ArticleBody({ bodyHtml, bodyHtmlKo, excerpt }: ArticleBo
 
   const hasKo = !!bodyHtmlKo;
   const raw = lang === "ko" && hasKo ? bodyHtmlKo : (bodyHtml ?? `<p>${excerpt}</p>`);
-  const content = sanitize(raw);
+  const content = normalizeDashes(raw);
 
   return (
     <div>

@@ -28,6 +28,8 @@ export interface Article {
   author: string | null
   tags: string[] | null
   key_takeaways: string[] | null
+  korea_impact: string[] | null
+  korea_impact_ko: string[] | null
   published_at: string | null
   created_at: string
 }
@@ -52,6 +54,8 @@ function toArticle(row: Record<string, unknown>): Article {
     author: (row.author as string) || 'TFF Editorial',
     tags: (row.tags as string[]) || [],
     key_takeaways: (row.key_takeaways as string[]) || [],
+    korea_impact: (row.korea_impact as string[]) || null,
+    korea_impact_ko: (row.korea_impact_ko as string[]) || null,
     published_at: (row.published_at as string) || (row.created_at as string),
     created_at: row.created_at as string,
   }
