@@ -14,10 +14,13 @@ export interface Article {
   id: string
   slug: string
   title: string
+  title_ko: string | null
   subtitle: string | null
+  subtitle_ko: string | null
   body_html: string | null
   body_html_ko: string | null
   excerpt: string
+  excerpt_ko: string | null
   category: string
   cover_image_url: string | null
   status: string
@@ -35,10 +38,13 @@ function toArticle(row: Record<string, unknown>): Article {
     id: row.id as string,
     slug: row.slug as string,
     title: row.title as string,
+    title_ko: (row.title_ko as string) || null,
     subtitle: (row.subtitle as string) || null,
+    subtitle_ko: (row.subtitle_ko as string) || null,
     body_html: (row.body_html as string) || null,
     body_html_ko: (row.body_html_ko as string) || null,
     excerpt: (row.subtitle as string) || (row.title as string) || '',
+    excerpt_ko: (row.subtitle_ko as string) || (row.title_ko as string) || null,
     category: (row.category as string) || 'other',
     cover_image_url: (row.cover_image_url as string) || null,
     status: (row.status as string) || 'published',

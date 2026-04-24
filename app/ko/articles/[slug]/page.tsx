@@ -33,15 +33,17 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const article = await getArticle(slug);
   if (!article) return { title: "기사를 찾을 수 없습니다" };
 
+  const koTitle = article.title_ko || article.title;
+  const koExcerpt = article.excerpt_ko || article.excerpt;
   const canonicalUrl = `${SITE_URL}/ko/articles/${slug}`;
   const enUrl = `${SITE_URL}/articles/${slug}`;
   const ogImageUrl = article.cover_image_url
     ? article.cover_image_url
-    : `${SITE_URL}/og?title=${encodeURIComponent(article.title)}&category=${article.category}&excerpt=${encodeURIComponent(article.excerpt)}`;
+    : `${SITE_URL}/og?title=${encodeURIComponent(koTitle)}&category=${article.category}&excerpt=${encodeURIComponent(koExcerpt)}`;
 
   return {
-    title: article.title,
-    description: article.excerpt,
+    title: koTitle,
+    description: koExcerpt,
     alternates: {
       canonical: canonicalUrl,
       languages: {
@@ -51,19 +53,19 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       },
     },
     openGraph: {
-      title: article.title,
-      description: article.excerpt,
+      title: koTitle,
+      description: koExcerpt,
       url: canonicalUrl,
       type: "article",
       siteName: "TechFastForward",
       locale: "ko_KR",
-      images: [{ url: ogImageUrl, width: 1200, height: 630, alt: article.title }],
+      images: [{ url: ogImageUrl, width: 1200, height: 630, alt: koTitle }],
     },
     twitter: {
       card: "summary_large_image",
-      title: article.title,
-      description: article.excerpt,
-      images: [{ url: ogImageUrl, alt: article.title }],
+      title: koTitle,
+      description: koExcerpt,
+      images: [{ url: ogImageUrl, alt: koTitle }],
     },
   };
 }
@@ -95,8 +97,8 @@ export default async function KoArticlePage({ params }: Props) {
     .slice(0, 3)
     .map((a) => ({
       slug: a.slug,
-      title: a.title,
-      excerpt: a.excerpt,
+      title: a.title_ko || a.title,
+      excerpt: a.excerpt_ko || a.excerpt,
       category: a.category as Category,
       coverImage: a.cover_image_url ?? undefined,
       author: a.author ?? "TFF Editorial",
@@ -147,11 +149,11 @@ export default async function KoArticlePage({ params }: Props) {
             </div>
 
             <h1 id="article-headline" className="font-bold text-2xl sm:text-3xl lg:text-4xl leading-tight mb-4" style={{ color: "var(--text)" }}>
-              {article.title}
+              {article.title_ko || article.title}
             </h1>
 
             <p id="article-excerpt" className="text-base leading-relaxed mb-5 border-l-2 pl-4" style={{ color: "var(--text-muted)", borderColor: "var(--accent)" }}>
-              {article.excerpt}
+              {article.excerpt_ko || article.excerpt}
             </p>
 
             <div className="flex flex-wrap items-center gap-4 text-xs pb-5 mb-5" style={{ borderBottom: "1px solid var(--border)", color: "var(--text-faint)" }}>

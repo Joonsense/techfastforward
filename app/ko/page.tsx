@@ -50,8 +50,8 @@ const CATEGORY_SECTIONS = [
 function articleToCard(a: Article): ArticleCardData {
   return {
     slug: a.slug,
-    title: a.title,
-    excerpt: a.excerpt,
+    title: a.title_ko || a.title,
+    excerpt: a.excerpt_ko || a.excerpt,
     category: a.category,
     coverImage: a.cover_image_url ?? undefined,
     author: a.author ?? "TFF Editorial",

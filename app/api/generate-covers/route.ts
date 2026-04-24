@@ -20,7 +20,7 @@ export const maxDuration = 60; // Vercel Hobby cap
 
 const BATCH = 3;
 const MAX_ATTEMPTS = 3;
-const GEMINI_MODEL = "gemini-2.5-flash-image-preview";
+const IMAGEN_MODEL = "imagen-3.0-generate-002";
 const BUCKET = "article-covers";
 
 interface ArticleRow {
@@ -61,12 +61,16 @@ function authorized(req: NextRequest): boolean {
   return auth === `Bearer ${secret}`;
 }
 
-async function callGemini(prompt: string): Promise<Buffer> {
+async function callImagen(prompt: string): Promise<Buffer> {
   const key = env("GEMINI_API_KEY");
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${key}`;
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/${IMAGEN_MODEL}:predict?key=${key}`;
   const body = {
-    contents: [{ parts: [{ text: prompt }] }],
-    generationConfig: { responseModalities: ["IMAGE"] },
+    instances: [{ prompt }],
+    parameters: {
+      sampleCount: 1,
+      aspectRatio: "16:9",
+      personGeneration: "dont_allow",
+    },
   };
   const res = await fetch(url, {
     method: "POST",
@@ -75,20 +79,14 @@ async function callGemini(prompt: string): Promise<Buffer> {
   });
   if (!res.ok) {
     const detail = await res.text();
-    throw new Error(`Gemini ${res.status}: ${detail.slice(0, 200)}`);
+    throw new Error(`Imagen ${res.status}: ${detail.slice(0, 200)}`);
   }
-  type GeminiResponse = {
-    candidates?: {
-      content?: {
-        parts?: { inlineData?: { data?: string } }[];
-      };
-    }[];
+  type ImagenResponse = {
+    predictions?: { bytesBase64Encoded?: string }[];
   };
-  const json = (await res.json()) as GeminiResponse;
-  const b64 = json.candidates?.[0]?.content?.parts?.find(
-    (p) => p.inlineData?.data,
-  )?.inlineData?.data;
-  if (!b64) throw new Error("Gemini returned no image part");
+  const json = (await res.json()) as ImagenResponse;
+  const b64 = json.predictions?.[0]?.bytesBase64Encoded;
+  if (!b64) throw new Error("Imagen returned no image");
   return Buffer.from(b64, "base64");
 }
 
@@ -101,7 +99,7 @@ async function generateAndStore(
     category: article.category,
     excerpt: article.subtitle,
   });
-  const png = await callGemini(prompt);
+  const png = await callImagen(prompt);
   const path = `${article.slug}-${Date.now()}.png`;
   const { error: upErr } = await sb.storage
     .from(BUCKET)
