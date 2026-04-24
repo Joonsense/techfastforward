@@ -84,13 +84,20 @@ export default function ShareButtons({ title, url, author, date, locale }: Share
     } catch { /* ignore */ }
   };
 
-  const nativeShare = async () => {
-    if (typeof navigator !== "undefined" && navigator.share) {
+  const hasNativeShare = typeof navigator !== "undefined" && !!navigator.share;
+  const [kakaoCopied, setKakaoCopied] = useState(false);
+
+  const kakaoShare = async () => {
+    if (hasNativeShare) {
       try { await navigator.share({ title, url: shareUrl }); } catch { /* cancelled */ }
+    } else {
+      try {
+        await navigator.clipboard.writeText(shareUrl);
+        setKakaoCopied(true);
+        setTimeout(() => setKakaoCopied(false), 3000);
+      } catch { /* ignore */ }
     }
   };
-
-  const hasNativeShare = typeof navigator !== "undefined" && !!navigator.share;
 
   const btn: React.CSSProperties = {
     display: "inline-flex",
@@ -140,15 +147,19 @@ export default function ShareButtons({ title, url, author, date, locale }: Share
           <span>LinkedIn</span>
         </a>
 
-        {hasNativeShare && (
+        {(isKo || hasNativeShare) && (
           <button
-            onClick={nativeShare}
-            style={btn}
-            className="hover:!border-[#FEE500]/40 hover:!bg-[#FEE500]/10 hover:!text-[#3C1E1E]"
+            onClick={kakaoShare}
+            style={{
+              ...btn,
+              border: kakaoCopied ? "1px solid #FEE500" : String(btn.border),
+              color: kakaoCopied ? "#3C1E1E" : "var(--text-muted)",
+              background: kakaoCopied ? "#FEE500" : "var(--bg-secondary)",
+            }}
             title={isKo ? "카카오톡으로 공유" : "Share on Kakao"}
           >
             <IconKakao />
-            <span>{isKo ? "카카오" : "Kakao"}</span>
+            <span>{kakaoCopied ? (isKo ? "링크 복사됨" : "Copied") : (isKo ? "카카오" : "Kakao")}</span>
           </button>
         )}
 

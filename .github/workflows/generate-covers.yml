@@ -1,0 +1,19 @@
+name: Generate Cover Images
+
+on:
+  schedule:
+    # Every 15 minutes — GitHub Actions free tier supports this
+    - cron: '*/15 * * * *'
+  workflow_dispatch: # manual trigger from GitHub UI
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - name: Trigger cover generation
+        run: |
+          curl -s -o /dev/null -w "%{http_code}" \
+            -X GET \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
+            https://techfastforward.com/api/generate-covers
