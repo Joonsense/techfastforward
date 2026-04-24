@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect, useRef } from "react";
 import Link from "next/link";
 import { Radio } from "lucide-react";
 
@@ -21,16 +20,28 @@ const CATEGORY_COLOR: Record<string, string> = {
   other:          "#6b7280",
 };
 
+function TickerItems({ items, locale }: { items: TickerItem[]; locale?: "ko" }) {
+  return (
+    <>
+      {items.map((item, i) => (
+        <Link
+          key={i}
+          href={locale ? `/${locale}/articles/${item.slug}` : `/articles/${item.slug}`}
+          className="flex items-center gap-2 px-5 whitespace-nowrap text-xs hover:opacity-70 transition-opacity h-full flex-shrink-0"
+          style={{ color: "var(--text-muted)" }}
+        >
+          <span
+            className="w-1.5 h-1.5 rounded-full flex-shrink-0"
+            style={{ background: CATEGORY_COLOR[item.category] ?? "#6b7280" }}
+          />
+          {item.title}
+        </Link>
+      ))}
+    </>
+  );
+}
+
 export default function BreakingTicker({ items, locale }: { items: TickerItem[]; locale?: "ko" }) {
-  const trackRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const track = trackRef.current;
-    if (!track || items.length === 0) return;
-    // Duplicate for seamless loop
-    track.innerHTML += track.innerHTML;
-  }, [items]);
-
   if (items.length === 0) return null;
 
   return (
@@ -47,27 +58,15 @@ export default function BreakingTicker({ items, locale }: { items: TickerItem[];
         <span className="text-[10px] font-bold uppercase tracking-wider text-white whitespace-nowrap">Live</span>
       </div>
 
-      {/* Scrolling track */}
+      {/* Scrolling track — duplicated in JSX for seamless CSS loop */}
       <div className="overflow-hidden flex-1 relative h-full">
         <div
-          ref={trackRef}
           className="flex items-center h-full gap-0 ticker-track"
           style={{ willChange: "transform" }}
+          aria-hidden="false"
         >
-          {items.map((item, i) => (
-            <Link
-              key={i}
-              href={locale ? `/${locale}/articles/${item.slug}` : `/articles/${item.slug}`}
-              className="flex items-center gap-2 px-5 whitespace-nowrap text-xs hover:opacity-70 transition-opacity h-full flex-shrink-0"
-              style={{ color: "var(--text-muted)" }}
-            >
-              <span
-                className="w-1.5 h-1.5 rounded-full flex-shrink-0"
-                style={{ background: CATEGORY_COLOR[item.category] ?? "#6b7280" }}
-              />
-              {item.title}
-            </Link>
-          ))}
+          <TickerItems items={items} locale={locale} />
+          <TickerItems items={items} locale={locale} />
         </div>
       </div>
     </div>

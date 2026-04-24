@@ -4,6 +4,7 @@ import "./globals.css";
 import Header from "@/components/Header";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { Analytics } from "@vercel/analytics/next";
+import Link from "next/link";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -152,9 +153,11 @@ export default function RootLayout({
                   <span className="text-xs" style={{ color: "var(--text-faint)" }}>|</span>
                   <span className="text-xs" style={{ color: "var(--text-muted)" }}>AI & Tech Intelligence</span>
                 </div>
-                <div className="flex items-center gap-4">
+                <div className="flex items-center gap-4 flex-wrap justify-center sm:justify-end">
                   <a href="/rss.xml" className="text-xs transition-colors" style={{ color: "var(--text-muted)" }} title="RSS Feed">RSS</a>
                   <a href="/llms.txt" className="text-xs transition-colors" style={{ color: "var(--text-muted)" }} title="LLMs.txt">llms.txt</a>
+                  <Link href="/privacy" className="text-xs transition-colors" style={{ color: "var(--text-muted)" }}>Privacy</Link>
+                  <Link href="/terms" className="text-xs transition-colors" style={{ color: "var(--text-muted)" }}>Terms</Link>
                   <p className="text-xs" style={{ color: "var(--text-faint)" }}>
                     {new Date().getFullYear()} TechFastForward
                   </p>
