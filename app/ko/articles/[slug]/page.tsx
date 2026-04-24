@@ -135,9 +135,9 @@ export default async function KoArticlePage({ params }: Props) {
             <img
               src={
                 article.cover_image_url ??
-                `/og?${new URLSearchParams({ title: article.title, category: article.category, excerpt: article.excerpt }).toString()}`
+                `/og?${new URLSearchParams({ title: article.title_ko || article.title, category: article.category, excerpt: article.excerpt_ko || article.excerpt }).toString()}`
               }
-              alt={article.title}
+              alt={article.title_ko || article.title}
               className="w-full object-cover"
               style={{ maxHeight: 480 }}
             />
@@ -173,7 +173,7 @@ export default async function KoArticlePage({ params }: Props) {
               )}
             </div>
 
-            <ShareButtons title={article.title} url={articleUrl} />
+            <ShareButtons title={article.title_ko || article.title} url={articleUrl} locale="ko" />
           </header>
 
           {article.key_takeaways && article.key_takeaways.length > 0 && (
@@ -197,7 +197,7 @@ export default async function KoArticlePage({ params }: Props) {
           />
 
           <div className="mt-10 pt-6" style={{ borderTop: "1px solid var(--border)" }}>
-            <ShareButtons title={article.title} url={articleUrl} />
+            <ShareButtons title={article.title_ko || article.title} url={articleUrl} locale="ko" />
           </div>
         </article>
 

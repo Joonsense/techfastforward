@@ -97,7 +97,14 @@ function HeaderSearch() {
 function LangToggle() {
   const pathname = usePathname();
   const isKo = pathname.startsWith("/ko");
-  const targetHref = isKo ? "/" : "/ko";
+
+  let targetHref: string;
+  if (isKo) {
+    const stripped = pathname.slice(3);
+    targetHref = stripped || "/";
+  } else {
+    targetHref = `/ko${pathname === "/" ? "" : pathname}`;
+  }
 
   return (
     <Link

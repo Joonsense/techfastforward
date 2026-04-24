@@ -109,7 +109,7 @@ export default async function KoHomePage() {
                   <span className="w-0.5 h-5 rounded-full" style={{ background: "var(--accent)" }} />
                   <h2 className="font-bold text-sm uppercase tracking-wider" style={{ color: "var(--text)" }}>최신</h2>
                 </div>
-                <Link href="/category/all" className="flex items-center gap-1 text-xs transition-colors" style={{ color: "var(--text-faint)" }}>
+                <Link href="/ko" className="flex items-center gap-1 text-xs transition-colors" style={{ color: "var(--text-faint)" }}>
                   전체 보기 <ArrowRight size={12} />
                 </Link>
               </div>

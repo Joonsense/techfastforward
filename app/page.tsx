@@ -104,7 +104,7 @@ export default async function HomePage() {
                   <span className="w-0.5 h-5 rounded-full" style={{ background: "var(--accent)" }} />
                   <h2 className="font-bold text-sm uppercase tracking-wider" style={{ color: "var(--text)" }}>Latest</h2>
                 </div>
-                <Link href="/category/all" className="flex items-center gap-1 text-xs transition-colors" style={{ color: "var(--text-faint)" }}>
+                <Link href="/" className="flex items-center gap-1 text-xs transition-colors" style={{ color: "var(--text-faint)" }}>
                   View all <ArrowRight size={12} />
                 </Link>
               </div>

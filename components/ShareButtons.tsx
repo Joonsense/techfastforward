@@ -32,13 +32,16 @@ interface ShareButtonsProps {
   url?: string;
   author?: string;
   date?: string;
+  locale?: "ko";
 }
 
-export default function ShareButtons({ title, url, author, date }: ShareButtonsProps) {
+export default function ShareButtons({ title, url, author, date, locale }: ShareButtonsProps) {
   const [copied, setCopied] = useState(false);
   const [citeCopied, setCiteCopied] = useState(false);
   const [showCite, setShowCite] = useState(false);
   const [citeFormat, setCiteFormat] = useState<"apa" | "bibtex">("apa");
+
+  const isKo = locale === "ko";
 
   const shareUrl = url ?? (typeof window !== "undefined" ? window.location.href : "");
   const encodedTitle = encodeURIComponent(title);
@@ -109,7 +112,9 @@ export default function ShareButtons({ title, url, author, date }: ShareButtonsP
   return (
     <div>
       <div className="flex items-center gap-2 flex-wrap">
-        <span className="text-[11px] font-medium" style={{ color: "var(--text-faint)" }}>공유:</span>
+        <span className="text-[11px] font-medium" style={{ color: "var(--text-faint)" }}>
+          {isKo ? "공유:" : "Share:"}
+        </span>
 
         <a
           href={twitterUrl}
@@ -117,7 +122,7 @@ export default function ShareButtons({ title, url, author, date }: ShareButtonsP
           rel="noopener noreferrer"
           style={btn}
           className="hover:!border-white/20 hover:!bg-black hover:!text-white"
-          title="X에서 공유"
+          title={isKo ? "X에서 공유" : "Share on X"}
         >
           <IconX />
           <span>X</span>
@@ -129,7 +134,7 @@ export default function ShareButtons({ title, url, author, date }: ShareButtonsP
           rel="noopener noreferrer"
           style={btn}
           className="hover:!border-[#0077B5]/40 hover:!bg-[#0077B5]/10 hover:!text-[#0077B5]"
-          title="LinkedIn에서 공유"
+          title={isKo ? "LinkedIn에서 공유" : "Share on LinkedIn"}
         >
           <IconLinkedIn />
           <span>LinkedIn</span>
@@ -140,10 +145,10 @@ export default function ShareButtons({ title, url, author, date }: ShareButtonsP
             onClick={nativeShare}
             style={btn}
             className="hover:!border-[#FEE500]/40 hover:!bg-[#FEE500]/10 hover:!text-[#3C1E1E]"
-            title="카카오톡으로 공유"
+            title={isKo ? "카카오톡으로 공유" : "Share on Kakao"}
           >
             <IconKakao />
-            <span>카카오</span>
+            <span>{isKo ? "카카오" : "Kakao"}</span>
           </button>
         )}
 
@@ -154,10 +159,10 @@ export default function ShareButtons({ title, url, author, date }: ShareButtonsP
             border: copied ? "1px solid #10b981" : String(btn.border),
             color: copied ? "#10b981" : "var(--text-muted)",
           }}
-          title="링크 복사"
+          title={isKo ? "링크 복사" : "Copy link"}
         >
           {copied ? <Check size={12} /> : <Link2 size={12} />}
-          <span>{copied ? "복사됨" : "링크"}</span>
+          <span>{copied ? (isKo ? "복사됨" : "Copied") : (isKo ? "링크" : "Link")}</span>
         </button>
 
         <button
@@ -167,10 +172,10 @@ export default function ShareButtons({ title, url, author, date }: ShareButtonsP
             border: showCite ? "1px solid var(--accent)" : String(btn.border),
             color: showCite ? "var(--accent)" : "var(--text-muted)",
           }}
-          title="인용 형식"
+          title={isKo ? "인용 형식" : "Cite"}
         >
           <Quote size={12} />
-          <span>인용</span>
+          <span>{isKo ? "인용" : "Cite"}</span>
         </button>
       </div>
 
@@ -206,7 +211,7 @@ export default function ShareButtons({ title, url, author, date }: ShareButtonsP
                 }}
               >
                 {citeCopied ? <Check size={10} /> : <Code size={10} />}
-                {citeCopied ? "완료" : "복사"}
+                {citeCopied ? (isKo ? "완료" : "Done") : (isKo ? "복사" : "Copy")}
               </button>
               <button onClick={() => setShowCite(false)} style={{ color: "var(--text-faint)" }}>
                 <X size={13} />

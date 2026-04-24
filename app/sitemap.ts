@@ -7,6 +7,7 @@ const SITE_URL = "https://techfastforward.com";
 
 const staticRoutes = [
   { path: "/",                    changeFrequency: "hourly" as const, priority: 1.0 },
+  { path: "/ko",                  changeFrequency: "hourly" as const, priority: 1.0 },
   { path: "/category/funding",    changeFrequency: "daily"  as const, priority: 0.8 },
   { path: "/category/model_release", changeFrequency: "daily" as const, priority: 0.8 },
   { path: "/category/technology", changeFrequency: "daily"  as const, priority: 0.8 },
@@ -24,16 +25,22 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Higher priority for articles published in the last 48 hours
   const recentCutoff = new Date(now.getTime() - 48 * 60 * 60 * 1000);
 
-  const articleEntries: MetadataRoute.Sitemap = articles.map((a) => {
+  const articleEntries: MetadataRoute.Sitemap = articles.flatMap((a) => {
     const pubDate = new Date(a.published_at ?? a.created_at);
     const isRecent = pubDate >= recentCutoff;
-
-    return {
+    const enEntry = {
       url: `${SITE_URL}/articles/${a.slug}`,
       lastModified: pubDate,
-      changeFrequency: isRecent ? "hourly" : "weekly",
+      changeFrequency: (isRecent ? "hourly" : "weekly") as "hourly" | "weekly",
       priority: isRecent ? 0.9 : 0.7,
     };
+    const koEntry = {
+      url: `${SITE_URL}/ko/articles/${a.slug}`,
+      lastModified: pubDate,
+      changeFrequency: (isRecent ? "hourly" : "weekly") as "hourly" | "weekly",
+      priority: isRecent ? 0.85 : 0.65,
+    };
+    return a.body_html_ko ? [enEntry, koEntry] : [enEntry];
   });
 
   const staticEntries: MetadataRoute.Sitemap = staticRoutes.map((r) => ({
