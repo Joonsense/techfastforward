@@ -89,12 +89,12 @@ export default async function KoHomePage() {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
       {/* Breaking Ticker */}
-      <BreakingTicker items={cards.slice(0, 10).map((c) => ({ slug: c.slug, title: c.title, category: c.category }))} />
+      <BreakingTicker locale="ko" items={cards.slice(0, 10).map((c) => ({ slug: c.slug, title: c.title, category: c.category }))} />
 
       {/* Hero */}
       {featured && (
         <section className="mb-10 fade-up fade-up-1">
-          <ArticleCard article={featured} variant="featured" />
+          <ArticleCard article={featured} variant="featured" locale="ko" />
         </section>
       )}
 
@@ -113,9 +113,9 @@ export default async function KoHomePage() {
                   전체 보기 <ArrowRight size={12} />
                 </Link>
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
                 {latestSix.map((article) => (
-                  <ArticleCard key={article.slug} article={article} variant="default" />
+                  <ArticleCard key={article.slug} article={article} variant="default" locale="ko" />
                 ))}
               </div>
             </section>
@@ -132,7 +132,7 @@ export default async function KoHomePage() {
                     <div className="rounded-xl overflow-hidden" style={{ border: "1px solid var(--border)", background: "var(--bg-secondary)" }}>
                       {catPosts.map((article) => (
                         <div key={article.slug} className="px-4">
-                          <ArticleCard article={article} variant="compact" />
+                          <ArticleCard article={article} variant="compact" locale="ko" />
                         </div>
                       ))}
                     </div>
@@ -150,7 +150,7 @@ export default async function KoHomePage() {
               최근 기사
             </h3>
             {sidebarLatest.map((article) => (
-              <ArticleCard key={article.slug} article={article} variant="compact" />
+              <ArticleCard key={article.slug} article={article} variant="compact" locale="ko" />
             ))}
           </div>
 

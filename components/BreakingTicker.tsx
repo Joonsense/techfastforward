@@ -21,7 +21,7 @@ const CATEGORY_COLOR: Record<string, string> = {
   other:          "#6b7280",
 };
 
-export default function BreakingTicker({ items }: { items: TickerItem[] }) {
+export default function BreakingTicker({ items, locale }: { items: TickerItem[]; locale?: "ko" }) {
   const trackRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -57,7 +57,7 @@ export default function BreakingTicker({ items }: { items: TickerItem[] }) {
           {items.map((item, i) => (
             <Link
               key={i}
-              href={`/articles/${item.slug}`}
+              href={locale ? `/${locale}/articles/${item.slug}` : `/articles/${item.slug}`}
               className="flex items-center gap-2 px-5 whitespace-nowrap text-xs hover:opacity-70 transition-opacity h-full flex-shrink-0"
               style={{ color: "var(--text-muted)" }}
             >

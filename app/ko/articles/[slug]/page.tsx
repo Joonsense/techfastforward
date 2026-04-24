@@ -207,7 +207,7 @@ export default async function KoArticlePage({ params }: Props) {
               관련 기사
             </h3>
             {related.map((article) => (
-              <ArticleCard key={article.slug} article={article} variant="compact" />
+              <ArticleCard key={article.slug} article={article} variant="compact" locale="ko" />
             ))}
           </div>
 

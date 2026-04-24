@@ -16,6 +16,7 @@ export interface ArticleCardData {
 interface ArticleCardProps {
   article: ArticleCardData;
   variant?: "default" | "featured" | "compact";
+  locale?: "ko";
 }
 
 function formatDate(dateStr: string) {
@@ -39,12 +40,13 @@ function getCoverUrl(article: ArticleCardData): string {
   return `/og?${params.toString()}`;
 }
 
-export default function ArticleCard({ article, variant = "default" }: ArticleCardProps) {
+export default function ArticleCard({ article, variant = "default", locale }: ArticleCardProps) {
   const coverSrc = getCoverUrl(article);
+  const articleHref = locale ? `/${locale}/articles/${article.slug}` : `/articles/${article.slug}`;
 
   if (variant === "featured") {
     return (
-      <Link href={`/articles/${article.slug}`} className="group block w-full">
+      <Link href={articleHref} className="group block w-full">
         <div
           className="relative w-full overflow-hidden rounded-2xl transition-shadow duration-200"
           style={{ background: "var(--bg-card)", border: "1px solid var(--border)", boxShadow: "var(--shadow)" }}
@@ -83,13 +85,13 @@ export default function ArticleCard({ article, variant = "default" }: ArticleCar
   if (variant === "compact") {
     return (
       <Link
-        href={`/articles/${article.slug}`}
-        className="group flex items-start gap-3 py-3 border-b last:border-0 transition-colors"
+        href={articleHref}
+        className="group flex items-start gap-3 py-4 border-b last:border-0 transition-colors"
         style={{ borderColor: "var(--border)" }}
       >
         {/* Thumbnail */}
         <div
-          className="flex-shrink-0 w-14 h-10 rounded-lg overflow-hidden"
+          className="flex-shrink-0 w-16 h-11 rounded-lg overflow-hidden"
           style={{ border: "1px solid var(--border)" }}
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -113,7 +115,7 @@ export default function ArticleCard({ article, variant = "default" }: ArticleCar
 
   // Default card
   return (
-    <Link href={`/articles/${article.slug}`} className="group block">
+    <Link href={articleHref} className="group block">
       <div
         className="rounded-xl overflow-hidden transition-all duration-200 hover:-translate-y-0.5"
         style={{
@@ -133,8 +135,8 @@ export default function ArticleCard({ article, variant = "default" }: ArticleCar
         </div>
 
         {/* Body */}
-        <div className="p-4">
-          <div className="flex items-center justify-between mb-2.5">
+        <div className="p-5">
+          <div className="flex items-center justify-between mb-3">
             <CategoryBadge category={article.category} />
             {article.readingTime && (
               <span className="flex items-center gap-1 text-[10px] font-mono" style={{ color: "var(--text-faint)" }}>
@@ -144,13 +146,13 @@ export default function ArticleCard({ article, variant = "default" }: ArticleCar
           </div>
 
           <h3
-            className="font-semibold text-sm leading-snug mb-1.5 line-clamp-2 transition-colors"
+            className="font-semibold text-sm leading-snug mb-2 line-clamp-2 transition-colors"
             style={{ color: "var(--text)" }}
           >
             {article.title}
           </h3>
 
-          <p className="text-xs leading-relaxed line-clamp-2 mb-3" style={{ color: "var(--text-muted)" }}>
+          <p className="text-xs leading-relaxed line-clamp-2 mb-4" style={{ color: "var(--text-muted)" }}>
             {article.excerpt}
           </p>
 
