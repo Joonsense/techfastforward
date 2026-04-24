@@ -2,6 +2,7 @@ import { getArticles, type Article } from "@/lib/articles";
 import ArticleCard, { type ArticleCardData } from "@/components/ArticleCard";
 import BreakingTicker from "@/components/BreakingTicker";
 import NewsletterForm from "@/components/NewsletterForm";
+import SponsorCard from "@/components/SponsorCard";
 import Link from "next/link";
 import { ArrowRight, TrendingUp, DollarSign, Cpu, Package, Handshake, Scale, Layers, Zap } from "lucide-react";
 import type { Metadata } from "next";
@@ -181,8 +182,11 @@ export default async function KoHomePage() {
             <p className="text-xs mb-3" style={{ color: "var(--text-muted)" }}>
               매일 AI 신호. 소음 없이.
             </p>
-            <NewsletterForm compact />
+            <NewsletterForm compact locale="ko" />
           </div>
+
+          {/* Sponsor */}
+          <SponsorCard />
         </aside>
       </div>
     </div>

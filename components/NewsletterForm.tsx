@@ -5,10 +5,36 @@ import { Mail, ArrowRight, CheckCircle, AlertCircle, Loader } from "lucide-react
 
 type Status = "idle" | "loading" | "success" | "error";
 
-export default function NewsletterForm({ compact = false }: { compact?: boolean }) {
+interface NewsletterFormProps {
+  compact?: boolean;
+  locale?: "en" | "ko";
+}
+
+const MESSAGES = {
+  en: {
+    placeholder: "your@email.com",
+    button: "Subscribe",
+    success: "You're in. We'll keep you in the loop.",
+    error: "Something went wrong. Please try again.",
+    networkError: "Network error. Please try again.",
+    duplicateError: "Already subscribed.",
+  },
+  ko: {
+    placeholder: "이메일 주소",
+    button: "구독하기",
+    success: "구독 완료. 매일 AI 신호를 받아보세요.",
+    error: "오류가 발생했습니다. 다시 시도해주세요.",
+    networkError: "네트워크 오류. 다시 시도해주세요.",
+    duplicateError: "이미 구독 중입니다.",
+  },
+};
+
+export default function NewsletterForm({ compact = false, locale = "en" }: NewsletterFormProps) {
   const [status, setStatus] = useState<Status>("idle");
   const [message, setMessage] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
+
+  const msgs = locale === "ko" ? MESSAGES.ko : MESSAGES.en;
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -28,15 +54,19 @@ export default function NewsletterForm({ compact = false }: { compact?: boolean 
 
       if (res.ok && data.success) {
         setStatus("success");
-        setMessage("You're in. We'll keep you in the loop.");
+        setMessage(msgs.success);
         if (inputRef.current) inputRef.current.value = "";
       } else {
         setStatus("error");
-        setMessage(data.error ?? "Something went wrong. Please try again.");
+        if (res.status === 409) {
+          setMessage(msgs.duplicateError);
+        } else {
+          setMessage(data.error ?? msgs.error);
+        }
       }
     } catch {
       setStatus("error");
-      setMessage("Network error. Please try again.");
+      setMessage(msgs.networkError);
     }
   }
 
@@ -56,7 +86,7 @@ export default function NewsletterForm({ compact = false }: { compact?: boolean 
           <input
             ref={inputRef}
             type="email"
-            placeholder="your@email.com"
+            placeholder={msgs.placeholder}
             disabled={status === "loading" || status === "success"}
             className="flex-1 bg-transparent outline-none text-xs"
             style={{ color: "var(--text)", caretColor: "var(--accent)" }}
@@ -81,7 +111,7 @@ export default function NewsletterForm({ compact = false }: { compact?: boolean 
           ) : status === "success" ? (
             <CheckCircle size={12} />
           ) : (
-            <>Subscribe <ArrowRight size={12} /></>
+            <>{msgs.button} <ArrowRight size={12} /></>
           )}
         </button>
       </form>

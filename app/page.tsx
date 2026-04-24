@@ -4,6 +4,7 @@ export const revalidate = 60;
 import ArticleCard, { type ArticleCardData } from "@/components/ArticleCard";
 import BreakingTicker from "@/components/BreakingTicker";
 import NewsletterForm from "@/components/NewsletterForm";
+import SponsorCard from "@/components/SponsorCard";
 import Link from "next/link";
 import {
   ArrowRight, TrendingUp, DollarSign, Cpu, Package,
@@ -185,6 +186,9 @@ export default async function HomePage() {
             </p>
             <NewsletterForm compact />
           </div>
+
+          {/* Sponsor */}
+          <SponsorCard />
         </aside>
       </div>
 
