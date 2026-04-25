@@ -5,6 +5,7 @@ import Header from "@/components/Header";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { Analytics } from "@vercel/analytics/next";
 import Link from "next/link";
+import Script from "next/script";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -143,6 +144,18 @@ export default function RootLayout({
             {children}
           </main>
           <Analytics />
+          <Script
+            src="https://www.googletagmanager.com/gtag/js?id=G-F19XEL5LTV"
+            strategy="afterInteractive"
+          />
+          <Script id="google-analytics" strategy="afterInteractive">
+            {`
+              window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);}
+              gtag('js', new Date());
+              gtag('config', 'G-F19XEL5LTV');
+            `}
+          </Script>
           <footer className="border-t mt-20" style={{ borderColor: "var(--border)" }}>
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
               <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
