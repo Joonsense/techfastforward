@@ -71,6 +71,7 @@ export const metadata: Metadata = {
   other: {
     "google-site-verification": process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION ?? "",
     "msvalidate.01": "6AC7315836FC7FAE8B258F5C64C8AB12",
+    "naver-site-verification": "c6e1721a912a65eebe4bc5a54791cc1d5df64452",
   },
 };
 
