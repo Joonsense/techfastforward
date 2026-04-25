@@ -70,6 +70,7 @@ export const metadata: Metadata = {
   },
   other: {
     "google-site-verification": process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION ?? "",
+    "msvalidate.01": "6AC7315836FC7FAE8B258F5C64C8AB12",
   },
 };
 
