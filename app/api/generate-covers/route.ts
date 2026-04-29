@@ -20,7 +20,8 @@ export const maxDuration = 60; // Vercel Hobby cap
 
 const BATCH = 3;
 const MAX_ATTEMPTS = 3;
-const IMAGEN_MODEL = "imagen-3.0-generate-002";
+const OPENAI_MODEL = "gpt-image-1";
+const OPENAI_FALLBACK = "dall-e-3";
 const BUCKET = "article-covers";
 
 interface ArticleRow {
@@ -61,33 +62,39 @@ function authorized(req: NextRequest): boolean {
   return auth === `Bearer ${secret}`;
 }
 
-async function callImagen(prompt: string): Promise<Buffer> {
-  const key = env("GEMINI_API_KEY");
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/${IMAGEN_MODEL}:predict?key=${key}`;
-  const body = {
-    instances: [{ prompt }],
-    parameters: {
-      sampleCount: 1,
-      aspectRatio: "16:9",
-      personGeneration: "dont_allow",
-    },
-  };
-  const res = await fetch(url, {
-    method: "POST",
-    headers: { "content-type": "application/json" },
-    body: JSON.stringify(body),
-  });
-  if (!res.ok) {
-    const detail = await res.text();
-    throw new Error(`Imagen ${res.status}: ${detail.slice(0, 200)}`);
+async function callOpenAI(prompt: string): Promise<Buffer> {
+  const key = env("OPENAI_API_KEY");
+
+  // Try gpt-image-1 first, fall back to dall-e-3
+  const attempts = [
+    { model: OPENAI_MODEL, size: "1536x1024", quality: "high" },
+    { model: OPENAI_FALLBACK, size: "1792x1024", quality: "hd", response_format: "b64_json" },
+  ];
+
+  for (const params of attempts) {
+    const res = await fetch("https://api.openai.com/v1/images/generations", {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        authorization: `Bearer ${key}`,
+      },
+      body: JSON.stringify({ prompt, n: 1, ...params }),
+    });
+
+    if (!res.ok) {
+      const detail = await res.text();
+      if (res.status === 404 || detail.includes("model_not_found")) continue;
+      throw new Error(`OpenAI ${res.status}: ${detail.slice(0, 200)}`);
+    }
+
+    type OpenAIResponse = { data?: { b64_json?: string }[] };
+    const json = (await res.json()) as OpenAIResponse;
+    const b64 = json.data?.[0]?.b64_json;
+    if (!b64) throw new Error("OpenAI returned no image data");
+    return Buffer.from(b64, "base64");
   }
-  type ImagenResponse = {
-    predictions?: { bytesBase64Encoded?: string }[];
-  };
-  const json = (await res.json()) as ImagenResponse;
-  const b64 = json.predictions?.[0]?.bytesBase64Encoded;
-  if (!b64) throw new Error("Imagen returned no image");
-  return Buffer.from(b64, "base64");
+
+  throw new Error("All OpenAI image models failed");
 }
 
 async function generateAndStore(
@@ -99,7 +106,7 @@ async function generateAndStore(
     category: article.category,
     excerpt: article.subtitle,
   });
-  const png = await callImagen(prompt);
+  const png = await callOpenAI(prompt);
   const path = `${article.slug}-${Date.now()}.png`;
   const { error: upErr } = await sb.storage
     .from(BUCKET)
