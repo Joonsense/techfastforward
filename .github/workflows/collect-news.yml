@@ -1,0 +1,24 @@
+name: Collect & Publish News
+
+on:
+  schedule:
+    # Every 30 minutes — GitHub Actions free tier supports this
+    - cron: '*/30 * * * *'
+  workflow_dispatch: # manual trigger from GitHub UI
+
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Trigger news collection
+        run: |
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
+            -X GET \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
+            https://techfastforward.com/api/cron/collect-news)
+          echo "Response status: $STATUS"
+          if [ "$STATUS" != "200" ]; then
+            echo "Error: API returned $STATUS"
+            exit 1
+          fi
